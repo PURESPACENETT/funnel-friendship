@@ -1,7 +1,7 @@
 /**
- * Finds a professional email for a prospect.
- * Step 1 — reads the company's own website (contact / legal pages).
- * Step 2 — falls back to Apollo.io (people search + enrichment) when connected.
+ * Finds contact details for a prospect.
+ * Step 1 — reads the company's own website (contact / legal pages) for public addresses.
+ * Step 2 — asks Clay for the decision-maker's name and role at that company.
  */
 
 const EMAIL_RE = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
@@ -39,19 +39,22 @@ function cleanCandidates(html: string): string[] {
   return out;
 }
 
+const PREFERRED = ["contact@", "info@", "accueil@", "bonjour@", "direction@", "hello@", "commercial@"];
+
 /** Ranks generic company inboxes first — they are the ones a cleaning offer should reach. */
-function pickBest(candidates: string[], domain: string | null): string | null {
-  if (candidates.length === 0) return null;
-  const preferred = ["contact@", "info@", "accueil@", "bonjour@", "direction@", "hello@", "commercial@"];
+function rank(candidates: string[], domain: string | null): string[] {
   const sameDomain = domain
     ? candidates.filter((email) => email.endsWith(`@${domain}`) || email.includes(domain))
     : [];
-  const pool = sameDomain.length > 0 ? sameDomain : candidates;
-  for (const prefix of preferred) {
-    const hit = pool.find((email) => email.startsWith(prefix));
-    if (hit) return hit;
-  }
-  return pool[0] ?? null;
+  const rest = candidates.filter((email) => !sameDomain.includes(email));
+  const ordered = [...sameDomain, ...rest];
+  return ordered.sort((a, b) => {
+    const rankOf = (email: string) => {
+      const index = PREFERRED.findIndex((prefix) => email.startsWith(prefix));
+      return index === -1 ? PREFERRED.length : index;
+    };
+    return rankOf(a) - rankOf(b);
+  });
 }
 
 export function domainOf(website: string | null | undefined): string | null {
@@ -84,101 +87,126 @@ async function fetchText(url: string): Promise<string> {
   }
 }
 
-/** Scans the company website for a public contact address. */
-export async function scanWebsiteForEmail(website: string | null | undefined): Promise<string | null> {
+/** Scans the company website and returns every usable public address, best first. */
+export async function scanWebsiteForEmails(
+  website: string | null | undefined,
+): Promise<string[]> {
   const domain = domainOf(website);
-  if (!domain) return null;
+  if (!domain) return [];
   const base = `https://${domain}`;
 
   const collected: string[] = [];
   for (const path of CONTACT_PATHS) {
     const html = await fetchText(`${base}${path}`);
     if (!html) continue;
-    collected.push(...cleanCandidates(html));
-    const best = pickBest(collected, domain);
-    if (best) return best;
+    for (const email of cleanCandidates(html)) {
+      if (!collected.includes(email)) collected.push(email);
+    }
+    if (collected.length >= 8) break;
   }
-  return pickBest(collected, domain);
+  return rank(collected, domain).slice(0, 8);
 }
 
-const APOLLO_GATEWAY = "https://connector-gateway.lovable.dev/apollo";
-
-export function apolloConfigured(): boolean {
-  return Boolean(process.env["LOVABLE_API_KEY"] && process.env["APOLLO_API_KEY"]);
+/** Convenience wrapper: the single best public address for this company. */
+export async function scanWebsiteForEmail(
+  website: string | null | undefined,
+): Promise<string | null> {
+  const emails = await scanWebsiteForEmails(website);
+  return emails[0] ?? null;
 }
 
-interface ApolloPerson {
-  id?: string;
+const CLAY_GATEWAY = "https://connector-gateway.lovable.dev/clay";
+
+export function clayConfigured(): boolean {
+  return Boolean(process.env["LOVABLE_API_KEY"] && process.env["CLAY_API_KEY"]);
+}
+
+interface ClayPerson {
+  name?: string;
   first_name?: string;
   last_name?: string;
-  name?: string;
-  title?: string;
-  email?: string;
-  linkedin_url?: string;
-  organization_name?: string;
+  url?: string;
+  domain?: string;
+  latest_experience_title?: string;
+  structured_location?: { country_iso?: string | null; city?: string | null };
 }
 
-async function apolloCall(path: string, query: Record<string, string>, body?: unknown) {
-  const url = new URL(`${APOLLO_GATEWAY}${path}`);
-  url.search = new URLSearchParams(query).toString();
-  const response = await fetch(url, {
+async function clayCall(path: string, body: unknown): Promise<Record<string, unknown>> {
+  const response = await fetch(`${CLAY_GATEWAY}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${process.env["LOVABLE_API_KEY"]}`,
-      "X-Connection-Api-Key": process.env["APOLLO_API_KEY"] ?? "",
+      "X-Connection-Api-Key": process.env["CLAY_API_KEY"] ?? "",
     },
-    ...(body ? { body: JSON.stringify(body) } : {}),
+    body: JSON.stringify(body),
   });
   const text = await response.text();
   if (!response.ok) {
-    throw new Error(`Apollo (${response.status}): ${text.slice(0, 400)}`);
+    throw new Error(`Clay (${response.status}): ${text.slice(0, 400)}`);
   }
   return text ? (JSON.parse(text) as Record<string, unknown>) : {};
 }
 
-/** Looks up a decision-maker email at the company through Apollo.io. */
-export async function findEmailViaApollo(input: {
+const DECISION_KEYWORDS = [
+  "gérant",
+  "gerant",
+  "dirigeant",
+  "président",
+  "president",
+  "directeur",
+  "directrice",
+  "owner",
+  "founder",
+  "fondateur",
+  "office manager",
+  "services généraux",
+  "achats",
+  "general manager",
+  "ceo",
+];
+
+/** Looks up the person to address at this company through Clay (name + role, no email). */
+export async function findContactViaClay(input: {
   website?: string | null;
   companyName: string;
-}): Promise<{ email: string; contactName: string | null; title: string | null } | null> {
-  if (!apolloConfigured()) return null;
+}): Promise<{ contactName: string; title: string | null; linkedin: string | null } | null> {
+  if (!clayConfigured()) return null;
   const domain = domainOf(input.website);
+  if (!domain) return null;
 
-  const searchQuery: Record<string, string> = { per_page: "5", page: "1" };
-  if (domain) searchQuery["q_organization_domains_list[]"] = domain;
-  else searchQuery["q_organization_name"] = input.companyName;
-  searchQuery["person_titles[]"] = "owner";
-
-  const search = await apolloCall("/api/v1/mixed_people/api_search", searchQuery);
-  const people = (search["people"] as ApolloPerson[] | undefined) ?? [];
-  const candidate = people[0];
-  if (!candidate) return null;
-
-  const enrich = await apolloCall("/api/v1/people/bulk_match", {}, {
-    details: [
-      {
-        id: candidate.id,
-        first_name: candidate.first_name,
-        last_name: candidate.last_name,
-        organization_name: candidate.organization_name ?? input.companyName,
-        ...(domain ? { domain } : {}),
-        ...(candidate.linkedin_url ? { linkedin_url: candidate.linkedin_url } : {}),
-      },
-    ],
+  const created = await clayCall("/search/filters-mode", {
+    source_type: "people",
+    filters: { company_identifier: [domain] },
   });
+  const searchId = created["search_id"];
+  if (typeof searchId !== "string") return null;
 
-  const matches = (enrich["matches"] as ApolloPerson[] | undefined) ?? [];
-  const match = matches[0];
-  const email = match?.email;
-  if (!email || email.includes("email_not_unlocked")) return null;
+  const run = await clayCall(`/search/filters-mode/${searchId}/run`, { limit: 25 });
+  const people = (run["data"] as ClayPerson[] | undefined) ?? [];
+  if (people.length === 0) return null;
+
+  const french = people.filter(
+    (person) => (person.structured_location?.country_iso ?? "FR").toUpperCase() === "FR",
+  );
+  const pool = french.length > 0 ? french : people;
+
+  const decisionMaker =
+    pool.find((person) => {
+      const title = (person.latest_experience_title ?? "").toLowerCase();
+      return DECISION_KEYWORDS.some((keyword) => title.includes(keyword));
+    }) ?? pool[0];
+
+  if (!decisionMaker) return null;
+
+  const contactName =
+    decisionMaker.name ??
+    [decisionMaker.first_name, decisionMaker.last_name].filter(Boolean).join(" ");
+  if (!contactName) return null;
 
   return {
-    email: email.toLowerCase(),
-    contactName:
-      match?.name ??
-      [match?.first_name, match?.last_name].filter(Boolean).join(" ") ??
-      null,
-    title: match?.title ?? null,
+    contactName: contactName.replace(/\s*\[[^\]]*\]\s*/g, " ").trim(),
+    title: decisionMaker.latest_experience_title ?? null,
+    linkedin: decisionMaker.url ?? null,
   };
 }
