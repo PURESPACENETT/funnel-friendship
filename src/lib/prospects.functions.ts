@@ -253,6 +253,81 @@ export const importProspects = createServerFn({ method: "POST" })
     return { created: rows.length };
   });
 
+/** Looks for a professional email: company website first, then Apollo.io. */
+export const findProspectEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: row, error: readError } = await context.supabase
+      .from("prospects")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (readError) throw new Error(readError.message);
+    if (!row) throw new Error("Prospect introuvable");
+
+    const { scanWebsiteForEmail, findEmailViaApollo, apolloConfigured } = await import(
+      "./prospect-email.server"
+    );
+
+    let email: string | null = null;
+    let source: "site" | "apollo" | null = null;
+    let contactNote: string | null = null;
+
+    try {
+      email = await scanWebsiteForEmail(row.website);
+      if (email) source = "site";
+    } catch (error) {
+      console.error("website email scan failed", error);
+    }
+
+    if (!email && apolloConfigured()) {
+      try {
+        const found = await findEmailViaApollo({
+          website: row.website,
+          companyName: row.company_name,
+        });
+        if (found) {
+          email = found.email;
+          source = "apollo";
+          contactNote = [found.contactName, found.title].filter(Boolean).join(" — ") || null;
+        }
+      } catch (error) {
+        console.error("apollo email lookup failed", error);
+      }
+    }
+
+    if (!email) {
+      return {
+        found: false as const,
+        apollo: apolloConfigured(),
+      };
+    }
+
+    const notes = contactNote
+      ? [row.notes, `Contact trouvé : ${contactNote}`].filter(Boolean).join("\n")
+      : row.notes;
+
+    const { error } = await context.supabase
+      .from("prospects")
+      .update({
+        email,
+        notes: notes ? notes.slice(0, 2000) : null,
+        score: scoreProspect({
+          postalCode: row.postal_code,
+          website: row.website,
+          phone: row.phone,
+          email,
+          reviewsCount: row.reviews_count,
+          sector: row.sector,
+        }),
+      })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+
+    return { found: true as const, email, source };
+  });
+
 export const deleteProspect = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
