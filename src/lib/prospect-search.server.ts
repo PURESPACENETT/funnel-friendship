@@ -49,6 +49,23 @@ function mapsKeys() {
   return { lovableKey, mapsKey };
 }
 
+interface Point {
+  latitude: number;
+  longitude: number;
+}
+
+/** Great-circle distance in kilometres. */
+function distanceKm(a: Point, b: Point): number {
+  const toRad = (value: number) => (value * Math.PI) / 180;
+  const dLat = toRad(b.latitude - a.latitude);
+  const dLng = toRad(b.longitude - a.longitude);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.latitude)) * Math.cos(toRad(b.latitude)) * Math.sin(dLng / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+
 /** Locates the centre of a town so the search radius can be applied around it. */
 export async function geocodeArea(
   area: string,
