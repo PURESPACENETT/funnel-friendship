@@ -427,6 +427,20 @@ function ProspectingPage() {
                       <Mail className="size-4" />
                     </Button>
                   </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => findEmailMutation.mutate(selected.id)}
+                    disabled={findEmailMutation.isPending}
+                  >
+                    {findEmailMutation.isPending ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <AtSign className="size-4" />
+                    )}
+                    Trouver l'adresse email
+                  </Button>
                   {selected.website ? (
                     <a
                       href={selected.website}
