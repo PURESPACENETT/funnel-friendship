@@ -163,6 +163,54 @@ function RequestDetailPage() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
+          <section className="rounded-xl border border-primary/25 bg-primary/5 p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <h2 className="flex items-center gap-2 text-base text-foreground">
+                <Sparkles className="size-4 text-primary" /> Résumé qualifié
+              </h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => qualifyMutation.mutate()}
+                disabled={qualifyMutation.isPending}
+              >
+                <RefreshCw className="size-4" />
+                {qualifyMutation.isPending ? "Analyse..." : "Relancer l'analyse"}
+              </Button>
+            </div>
+
+            {request.ai_summary ? (
+              <>
+                <p className="mt-3 text-sm text-foreground">{request.ai_summary}</p>
+                {(request.ai_key_points ?? []).length > 0 && (
+                  <ul className="mt-3 space-y-1.5">
+                    {(request.ai_key_points ?? []).map((point: string, i: number) => (
+                      <li key={i} className="flex gap-2 text-sm text-foreground">
+                        <span className="text-primary">•</span>
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  {request.ai_urgency && (
+                    <Badge variant="secondary">Urgence {URGENCY[request.ai_urgency] ?? request.ai_urgency}</Badge>
+                  )}
+                  {request.ai_next_step && (
+                    <span className="text-sm text-muted-foreground">
+                      Prochaine action : {request.ai_next_step}
+                    </span>
+                  )}
+                </div>
+              </>
+            ) : (
+              <p className="mt-3 text-sm text-muted-foreground">
+                Pas encore de résumé pour cette demande. Lancez l'analyse pour obtenir l'essentiel
+                en un coup d'œil.
+              </p>
+            )}
+          </section>
+
           <section className="rounded-xl border border-border bg-card p-5">
             <h2 className="text-base text-foreground">Le besoin</h2>
             <dl className="mt-4 grid gap-4 sm:grid-cols-2">
