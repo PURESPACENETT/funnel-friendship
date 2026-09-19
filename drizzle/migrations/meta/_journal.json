@@ -29,6 +29,13 @@
       "when": 1789822831499,
       "tag": "0003_restrict_access_to_staff_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789823438673,
+      "tag": "0004_create_prospecting",
+      "breakpoints": true
     }
   ]
 }
