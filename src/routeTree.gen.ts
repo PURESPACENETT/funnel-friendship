@@ -17,6 +17,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppPipelineRouteImport } from './routes/_authenticated/app.pipeline'
+import { Route as AuthenticatedAppProspectionRouteImport } from './routes/_authenticated/app.prospection'
 import { Route as AuthenticatedAppTarifsRouteImport } from './routes/_authenticated/app.tarifs'
 import { Route as AuthenticatedAppDemandesIndexRouteImport } from './routes/_authenticated/app.demandes.index'
 import { Route as AuthenticatedAppDemandesIdRouteImport } from './routes/_authenticated/app.demandes.$id'
@@ -62,6 +63,12 @@ const AuthenticatedAppPipelineRoute =
     path: '/pipeline',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppProspectionRoute =
+  AuthenticatedAppProspectionRouteImport.update({
+    id: '/prospection',
+    path: '/prospection',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppTarifsRoute = AuthenticatedAppTarifsRouteImport.update({
   id: '/tarifs',
   path: '/tarifs',
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/pipeline': typeof AuthenticatedAppPipelineRoute
+  '/app/prospection': typeof AuthenticatedAppProspectionRoute
   '/app/tarifs': typeof AuthenticatedAppTarifsRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
@@ -105,6 +113,7 @@ export interface FileRoutesByTo {
   '/merci': typeof MerciRoute
   '/reset-password': typeof ResetPasswordRoute
   '/app/pipeline': typeof AuthenticatedAppPipelineRoute
+  '/app/prospection': typeof AuthenticatedAppProspectionRoute
   '/app/tarifs': typeof AuthenticatedAppTarifsRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
@@ -120,6 +129,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/pipeline': typeof AuthenticatedAppPipelineRoute
+  '/_authenticated/app/prospection': typeof AuthenticatedAppProspectionRoute
   '/_authenticated/app/tarifs': typeof AuthenticatedAppTarifsRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/app'
     | '/app/pipeline'
+    | '/app/prospection'
     | '/app/tarifs'
     | '/app/'
     | '/app/demandes/$id'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
     | '/merci'
     | '/reset-password'
     | '/app/pipeline'
+    | '/app/prospection'
     | '/app/tarifs'
     | '/app'
     | '/app/demandes/$id'
@@ -161,6 +173,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/app'
     | '/_authenticated/app/pipeline'
+    | '/_authenticated/app/prospection'
     | '/_authenticated/app/tarifs'
     | '/_authenticated/app/'
     | '/_authenticated/app/demandes/$id'
@@ -235,6 +248,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppPipelineRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/prospection': {
+      id: '/_authenticated/app/prospection'
+      path: '/prospection'
+      fullPath: '/app/prospection'
+      preLoaderRoute: typeof AuthenticatedAppProspectionRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/tarifs': {
       id: '/_authenticated/app/tarifs'
       path: '/tarifs'
@@ -268,6 +288,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppPipelineRoute: typeof AuthenticatedAppPipelineRoute
+  AuthenticatedAppProspectionRoute: typeof AuthenticatedAppProspectionRoute
   AuthenticatedAppTarifsRoute: typeof AuthenticatedAppTarifsRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppDemandesIdRoute: typeof AuthenticatedAppDemandesIdRoute
@@ -276,6 +297,7 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppPipelineRoute: AuthenticatedAppPipelineRoute,
+  AuthenticatedAppProspectionRoute: AuthenticatedAppProspectionRoute,
   AuthenticatedAppTarifsRoute: AuthenticatedAppTarifsRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppDemandesIdRoute: AuthenticatedAppDemandesIdRoute,
