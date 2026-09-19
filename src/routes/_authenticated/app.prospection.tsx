@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Loader2, Mail, Search, Send, Sparkles, Trash2, Upload } from "lucide-react";
+import { AtSign, Loader2, Mail, Search, Send, Sparkles, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import {
   deleteProspect,
+  findProspectEmail,
   generateOutreach,
   importProspects,
   listProspects,
@@ -79,6 +80,7 @@ function ProspectingPage() {
   const runStatus = useServerFn(updateProspectStatus);
   const runPatch = useServerFn(updateProspect);
   const runDelete = useServerFn(deleteProspect);
+  const runFindEmail = useServerFn(findProspectEmail);
 
   const { data, isLoading } = useQuery({
     queryKey: ["prospects"],
@@ -178,6 +180,28 @@ function ProspectingPage() {
     onSuccess: () => {
       toast.success("Coordonnées mises à jour.");
       void refresh();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const findEmailMutation = useMutation({
+    mutationFn: (id: string) => runFindEmail({ data: { id } }),
+    onSuccess: (result) => {
+      if (result.found) {
+        setEmail(result.email);
+        toast.success(
+          result.source === "site"
+            ? "Adresse trouvée sur leur site web."
+            : "Adresse trouvée via Apollo.",
+        );
+        void refresh();
+      } else {
+        toast.error(
+          result.apollo
+            ? "Aucune adresse trouvée pour cette entreprise."
+            : "Rien trouvé sur leur site. Branchez Apollo pour chercher plus loin.",
+        );
+      }
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -403,6 +427,20 @@ function ProspectingPage() {
                       <Mail className="size-4" />
                     </Button>
                   </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => findEmailMutation.mutate(selected.id)}
+                    disabled={findEmailMutation.isPending}
+                  >
+                    {findEmailMutation.isPending ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <AtSign className="size-4" />
+                    )}
+                    Trouver l'adresse email
+                  </Button>
                   {selected.website ? (
                     <a
                       href={selected.website}
