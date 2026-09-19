@@ -253,7 +253,15 @@ function ProspectingPage() {
   });
 
   const sendMutation = useMutation({
-    mutationFn: (id: string) => runSend({ data: { id } }),
+    mutationFn: async (id: string) => {
+      // Persist what is on screen (address + message) so nothing typed is lost on send.
+      if (email) await runPatch({ data: { id, email } });
+      if (subject.length >= 3 && body.length >= 20) {
+        await runSave({ data: { id, subject, body } });
+      }
+      return runSend({ data: { id } });
+    },
+
     onSuccess: (result) => {
       if (result.sent) toast.success("Email envoyé, le prospect passe en « Contacté ».");
       else toast.error("Envoi bloqué : cette adresse a été désinscrite.");
