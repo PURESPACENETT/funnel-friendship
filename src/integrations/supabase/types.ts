@@ -19,6 +19,7 @@ export type Database = {
           frequency_multipliers: Json
           id: string
           min_price: number
+          notify_email: string | null
           property_rates: Json
           range_spread: number
           service_surcharges: Json
@@ -28,6 +29,7 @@ export type Database = {
           frequency_multipliers?: Json
           id?: string
           min_price?: number
+          notify_email?: string | null
           property_rates?: Json
           range_spread?: number
           service_surcharges?: Json
@@ -37,6 +39,7 @@ export type Database = {
           frequency_multipliers?: Json
           id?: string
           min_price?: number
+          notify_email?: string | null
           property_rates?: Json
           range_spread?: number
           service_surcharges?: Json
