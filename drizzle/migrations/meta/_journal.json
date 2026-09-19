@@ -15,6 +15,13 @@
       "when": 1789821188629,
       "tag": "0001_add_notify_email_setting",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789822522829,
+      "tag": "0002_add_ai_qualification",
+      "breakpoints": true
     }
   ]
 }

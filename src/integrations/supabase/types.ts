@@ -49,6 +49,11 @@ export type Database = {
       }
       quote_requests: {
         Row: {
+          ai_generated_at: string | null
+          ai_key_points: string[]
+          ai_next_step: string | null
+          ai_summary: string | null
+          ai_urgency: string | null
           city: string
           client_type: Database["public"]["Enums"]["client_type"]
           company_name: string | null
@@ -73,6 +78,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_generated_at?: string | null
+          ai_key_points?: string[]
+          ai_next_step?: string | null
+          ai_summary?: string | null
+          ai_urgency?: string | null
           city: string
           client_type: Database["public"]["Enums"]["client_type"]
           company_name?: string | null
@@ -97,6 +107,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_generated_at?: string | null
+          ai_key_points?: string[]
+          ai_next_step?: string | null
+          ai_summary?: string | null
+          ai_urgency?: string | null
           city?: string
           client_type?: Database["public"]["Enums"]["client_type"]
           company_name?: string | null
