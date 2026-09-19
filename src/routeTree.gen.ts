@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as MerciRouteImport } from './routes/merci'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppTarifsRouteImport } from './routes/_authenticated/app.tarifs'
 import { Route as AuthenticatedAppDemandesIndexRouteImport } from './routes/_authenticated/app.demandes.index'
 import { Route as AuthenticatedAppDemandesIdRouteImport } from './routes/_authenticated/app.demandes.$id'
 
@@ -47,6 +48,11 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppTarifsRoute = AuthenticatedAppTarifsRouteImport.update({
+  id: '/tarifs',
+  path: '/tarifs',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppDemandesIndexRoute =
   AuthenticatedAppDemandesIndexRouteImport.update({
     id: '/demandes/',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/merci': typeof MerciRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/app/tarifs': typeof AuthenticatedAppTarifsRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
   '/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/merci': typeof MerciRoute
+  '/app/tarifs': typeof AuthenticatedAppTarifsRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
   '/app/demandes': typeof AuthenticatedAppDemandesIndexRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/merci': typeof MerciRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/app/tarifs': typeof AuthenticatedAppTarifsRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
   '/_authenticated/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
@@ -95,11 +104,19 @@ export interface FileRouteTypes {
     | '/auth'
     | '/merci'
     | '/app'
+    | '/app/tarifs'
     | '/app/'
     | '/app/demandes/$id'
     | '/app/demandes/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/merci' | '/app' | '/app/demandes/$id' | '/app/demandes'
+  to:
+    | '/'
+    | '/auth'
+    | '/merci'
+    | '/app/tarifs'
+    | '/app'
+    | '/app/demandes/$id'
+    | '/app/demandes'
   id:
     | '__root__'
     | '/'
@@ -107,6 +124,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/merci'
     | '/_authenticated/app'
+    | '/_authenticated/app/tarifs'
     | '/_authenticated/app/'
     | '/_authenticated/app/demandes/$id'
     | '/_authenticated/app/demandes/'
@@ -163,6 +181,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/tarifs': {
+      id: '/_authenticated/app/tarifs'
+      path: '/tarifs'
+      fullPath: '/app/tarifs'
+      preLoaderRoute: typeof AuthenticatedAppTarifsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/demandes/': {
       id: '/_authenticated/app/demandes/'
       path: '/demandes'
@@ -181,12 +206,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppTarifsRoute: typeof AuthenticatedAppTarifsRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppDemandesIdRoute: typeof AuthenticatedAppDemandesIdRoute
   AuthenticatedAppDemandesIndexRoute: typeof AuthenticatedAppDemandesIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppTarifsRoute: AuthenticatedAppTarifsRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppDemandesIdRoute: AuthenticatedAppDemandesIdRoute,
   AuthenticatedAppDemandesIndexRoute: AuthenticatedAppDemandesIndexRoute,
