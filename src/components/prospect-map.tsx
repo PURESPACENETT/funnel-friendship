@@ -107,57 +107,66 @@ export default function ProspectMap({ pins, center, radiusKm, onSelect }: Props)
 
   useEffect(() => {
     if (status !== "ready" || !mapRef.current) return;
-    const maps = (window as any).google.maps;
-    const map = mapRef.current;
+    try {
+      const maps = (window as any).google.maps;
+      const map = mapRef.current;
 
-    for (const marker of markersRef.current) marker.setMap(null);
-    markersRef.current = [];
+      for (const marker of markersRef.current) marker.setMap(null);
+      markersRef.current = [];
 
-    const primary = cssColor("--primary", "#0f766e");
-    const accent = cssColor("--muted-foreground", "#64748b");
+      const primary = cssColor("--primary", "#0f766e");
+      const accent = cssColor("--muted-foreground", "#64748b");
 
-    const bounds = new maps.LatLngBounds();
+      const bounds = new maps.LatLngBounds();
 
-    for (const pin of pins) {
-      const marker = new maps.Marker({
+      for (const pin of pins) {
+        const marker = new maps.Marker({
+          map,
+          position: { lat: pin.latitude, lng: pin.longitude },
+          title: `${pin.name}${pin.city ? ` — ${pin.city}` : ""}`,
+          icon: {
+            path: maps.SymbolPath.CIRCLE,
+            scale: pin.selected ? 10 : 7,
+            fillColor: pin.contacted ? accent : primary,
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 2,
+          },
+        });
+        marker.addListener("click", () => onSelect(pin.id));
+        markersRef.current.push(marker);
+        bounds.extend(marker.getPosition());
+      }
+
+      circleRef.current?.setMap(null);
+      const centerPoint = {
+        lat: fallbackCenter.latitude,
+        lng: fallbackCenter.longitude,
+      };
+      circleRef.current = new maps.Circle({
         map,
-        position: { lat: pin.latitude, lng: pin.longitude },
-        title: `${pin.name}${pin.city ? ` — ${pin.city}` : ""}`,
-        icon: {
-          path: maps.SymbolPath.CIRCLE,
-          scale: pin.selected ? 10 : 7,
-          fillColor: pin.contacted ? accent : primary,
-          fillOpacity: 1,
-          strokeColor: "#ffffff",
-          strokeWeight: 2,
-        },
+        center: centerPoint,
+        radius: radiusKm * 1000,
+        strokeColor: primary,
+        strokeOpacity: 0.35,
+        strokeWeight: 1,
+        fillColor: primary,
+        fillOpacity: 0.06,
       });
-      marker.addListener("click", () => onSelect(pin.id));
-      markersRef.current.push(marker);
-      bounds.extend(marker.getPosition());
+
+      // Bounds of the search circle, computed from the radius (no map idle needed).
+      const latSpan = radiusKm / 111;
+      const lngSpan = radiusKm / (111 * Math.max(0.2, Math.cos((centerPoint.lat * Math.PI) / 180)));
+      bounds.extend({ lat: centerPoint.lat + latSpan, lng: centerPoint.lng + lngSpan });
+      bounds.extend({ lat: centerPoint.lat - latSpan, lng: centerPoint.lng - lngSpan });
+
+      map.fitBounds(bounds, 32);
+    } catch (error) {
+      console.error("map render failed", error);
+      setStatus("error");
     }
-
-    circleRef.current?.setMap(null);
-    const centerPoint = {
-      lat: fallbackCenter.latitude,
-      lng: fallbackCenter.longitude,
-    };
-    circleRef.current = new maps.Circle({
-      map,
-      center: centerPoint,
-      radius: radiusKm * 1000,
-      strokeColor: primary,
-      strokeOpacity: 0.35,
-      strokeWeight: 1,
-      fillColor: primary,
-      fillOpacity: 0.06,
-    });
-    bounds.extend(circleRef.current.getBounds().getNorthEast());
-    bounds.extend(circleRef.current.getBounds().getSouthWest());
-
-    if (pins.length > 0) map.fitBounds(bounds, 32);
-    else map.setCenter(centerPoint);
   }, [pins, status, radiusKm, fallbackCenter, onSelect]);
+
 
   if (status === "error") {
     return (
