@@ -14,7 +14,143 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      pricing_settings: {
+        Row: {
+          frequency_multipliers: Json
+          id: string
+          min_price: number
+          property_rates: Json
+          range_spread: number
+          service_surcharges: Json
+          updated_at: string
+        }
+        Insert: {
+          frequency_multipliers?: Json
+          id?: string
+          min_price?: number
+          property_rates?: Json
+          range_spread?: number
+          service_surcharges?: Json
+          updated_at?: string
+        }
+        Update: {
+          frequency_multipliers?: Json
+          id?: string
+          min_price?: number
+          property_rates?: Json
+          range_spread?: number
+          service_surcharges?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      quote_requests: {
+        Row: {
+          city: string
+          client_type: Database["public"]["Enums"]["client_type"]
+          company_name: string | null
+          contact_name: string
+          created_at: string
+          desired_date: string | null
+          email: string
+          estimate_max: number
+          estimate_min: number
+          frequency: string
+          id: string
+          last_contacted_at: string | null
+          message: string | null
+          phone: string
+          postal_code: string
+          property_type: string
+          rooms: number | null
+          score: number
+          services: string[]
+          status: Database["public"]["Enums"]["request_status"]
+          surface_m2: number
+          updated_at: string
+        }
+        Insert: {
+          city: string
+          client_type: Database["public"]["Enums"]["client_type"]
+          company_name?: string | null
+          contact_name: string
+          created_at?: string
+          desired_date?: string | null
+          email: string
+          estimate_max?: number
+          estimate_min?: number
+          frequency: string
+          id?: string
+          last_contacted_at?: string | null
+          message?: string | null
+          phone: string
+          postal_code: string
+          property_type: string
+          rooms?: number | null
+          score?: number
+          services?: string[]
+          status?: Database["public"]["Enums"]["request_status"]
+          surface_m2?: number
+          updated_at?: string
+        }
+        Update: {
+          city?: string
+          client_type?: Database["public"]["Enums"]["client_type"]
+          company_name?: string | null
+          contact_name?: string
+          created_at?: string
+          desired_date?: string | null
+          email?: string
+          estimate_max?: number
+          estimate_min?: number
+          frequency?: string
+          id?: string
+          last_contacted_at?: string | null
+          message?: string | null
+          phone?: string
+          postal_code?: string
+          property_type?: string
+          rooms?: number | null
+          score?: number
+          services?: string[]
+          status?: Database["public"]["Enums"]["request_status"]
+          surface_m2?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      request_notes: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          request_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          request_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_notes_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +159,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      client_type: "entreprise" | "sous_traitance" | "particulier"
+      request_status:
+        | "nouveau"
+        | "contacte"
+        | "devis_envoye"
+        | "gagne"
+        | "perdu"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +292,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      client_type: ["entreprise", "sous_traitance", "particulier"],
+      request_status: ["nouveau", "contacte", "devis_envoye", "gagne", "perdu"],
+    },
   },
 } as const
