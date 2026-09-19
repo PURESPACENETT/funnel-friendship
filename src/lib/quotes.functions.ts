@@ -83,7 +83,57 @@ export const submitQuoteRequest = createServerFn({ method: "POST" })
       console.error("Email notification failed", notifyError);
     }
 
+    try {
+      const { qualifyAndStore } = await import("./quote-ai.server");
+      await qualifyAndStore(inserted.id, {
+        ...data,
+        rooms: data.rooms ?? null,
+        desiredDate: data.desiredDate || null,
+        companyName: data.companyName || null,
+        message: data.message || null,
+        estimateMin: estimate.min,
+        estimateMax: estimate.max,
+      });
+    } catch (aiError) {
+      console.error("AI qualification failed", aiError);
+    }
+
     return { id: inserted.id, estimate, score };
+  });
+
+/** Private: (re)generate the AI qualification of a request. */
+export const qualifyRequest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: row, error } = await context.supabase
+      .from("quote_requests")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row) throw new Error("Demande introuvable");
+
+    const { qualifyAndStore } = await import("./quote-ai.server");
+    const ok = await qualifyAndStore(row.id, {
+      clientType: row.client_type,
+      propertyType: row.property_type,
+      surfaceM2: row.surface_m2,
+      rooms: row.rooms,
+      frequency: row.frequency,
+      services: row.services,
+      city: row.city,
+      postalCode: row.postal_code,
+      desiredDate: row.desired_date,
+      contactName: row.contact_name,
+      companyName: row.company_name,
+      message: row.message,
+      estimateMin: Number(row.estimate_min),
+      estimateMax: Number(row.estimate_max),
+    });
+
+    if (!ok) throw new Error("Analyse indisponible pour le moment");
+    return { ok: true };
   });
 
 /** Public: live estimate preview while filling the form. */
