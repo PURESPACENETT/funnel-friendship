@@ -91,7 +91,7 @@ const footer = { color: '#64748b', fontSize: '12px' }
 export const template = {
   component: OwnerAlertEmail,
   subject: (d: Record<string, any>) =>
-    `Nouvelle demande de devis — ${d.name ?? 'Prospect'} (${d.clientType ?? ''})`,
+    `Nouvelle demande de devis — ${d['name'] ?? 'Prospect'} (${d['clientType'] ?? ''})`,
   displayName: 'Alerte nouvelle demande (vous)',
   previewData: {},
 } satisfies TemplateEntry

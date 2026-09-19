@@ -25,7 +25,7 @@ export async function notifyNewRequest(payload: NewRequestPayload): Promise<void
   try {
     await sendTemplateEmail("request-confirmation", input.email, {
       templateData: {
-        name: input.name,
+        name: input.contactName,
         estimateMin,
         estimateMax,
         frequency,
@@ -42,12 +42,12 @@ export async function notifyNewRequest(payload: NewRequestPayload): Promise<void
     await sendTemplateEmail("new-request-owner", ownerEmail, {
       templateData: {
         clientType,
-        name: input.name,
+        name: input.contactName,
         email: input.email,
         phone: input.phone,
         city: input.city,
         postalCode: input.postalCode,
-        surface: input.surface,
+        surface: input.surfaceM2,
         frequency,
         estimateMin,
         estimateMax,
