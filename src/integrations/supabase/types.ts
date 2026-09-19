@@ -47,6 +47,111 @@ export type Database = {
         }
         Relationships: []
       }
+      prospect_searches: {
+        Row: {
+          area: string
+          created_at: string
+          created_by: string | null
+          found_count: number
+          id: string
+          new_count: number
+          sector: string
+        }
+        Insert: {
+          area: string
+          created_at?: string
+          created_by?: string | null
+          found_count?: number
+          id?: string
+          new_count?: number
+          sector: string
+        }
+        Update: {
+          area?: string
+          created_at?: string
+          created_by?: string | null
+          found_count?: number
+          id?: string
+          new_count?: number
+          sector?: string
+        }
+        Relationships: []
+      }
+      prospects: {
+        Row: {
+          address: string | null
+          city: string | null
+          company_name: string
+          created_at: string
+          email: string | null
+          external_id: string | null
+          id: string
+          notes: string | null
+          outreach_body: string | null
+          outreach_generated_at: string | null
+          outreach_sent_at: string | null
+          outreach_subject: string | null
+          phone: string | null
+          postal_code: string | null
+          rating: number | null
+          reviews_count: number | null
+          score: number
+          sector: string | null
+          source: string
+          status: Database["public"]["Enums"]["prospect_status"]
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          company_name: string
+          created_at?: string
+          email?: string | null
+          external_id?: string | null
+          id?: string
+          notes?: string | null
+          outreach_body?: string | null
+          outreach_generated_at?: string | null
+          outreach_sent_at?: string | null
+          outreach_subject?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          score?: number
+          sector?: string | null
+          source?: string
+          status?: Database["public"]["Enums"]["prospect_status"]
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          company_name?: string
+          created_at?: string
+          email?: string | null
+          external_id?: string | null
+          id?: string
+          notes?: string | null
+          outreach_body?: string | null
+          outreach_generated_at?: string | null
+          outreach_sent_at?: string | null
+          outreach_subject?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          score?: number
+          sector?: string | null
+          source?: string
+          status?: Database["public"]["Enums"]["prospect_status"]
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       quote_requests: {
         Row: {
           ai_generated_at: string | null
@@ -207,6 +312,13 @@ export type Database = {
     Enums: {
       app_role: "admin" | "staff"
       client_type: "entreprise" | "sous_traitance" | "particulier"
+      prospect_status:
+        | "nouveau"
+        | "a_contacter"
+        | "contacte"
+        | "interesse"
+        | "converti"
+        | "ecarte"
       request_status:
         | "nouveau"
         | "contacte"
@@ -342,6 +454,14 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "staff"],
       client_type: ["entreprise", "sous_traitance", "particulier"],
+      prospect_status: [
+        "nouveau",
+        "a_contacter",
+        "contacte",
+        "interesse",
+        "converti",
+        "ecarte",
+      ],
       request_status: ["nouveau", "contacte", "devis_envoye", "gagne", "perdu"],
     },
   },
