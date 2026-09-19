@@ -15,6 +15,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as MerciRouteImport } from './routes/merci'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppDemandesIndexRouteImport } from './routes/_authenticated/app.demandes.index'
+import { Route as AuthenticatedAppDemandesIdRouteImport } from './routes/_authenticated/app.demandes.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -45,6 +47,18 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppDemandesIndexRoute =
+  AuthenticatedAppDemandesIndexRouteImport.update({
+    id: '/demandes/',
+    path: '/demandes/',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppDemandesIdRoute =
+  AuthenticatedAppDemandesIdRouteImport.update({
+    id: '/demandes/$id',
+    path: '/demandes/$id',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -52,12 +66,16 @@ export interface FileRoutesByFullPath {
   '/merci': typeof MerciRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
+  '/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/merci': typeof MerciRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
+  '/app/demandes': typeof AuthenticatedAppDemandesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -67,12 +85,21 @@ export interface FileRoutesById {
   '/merci': typeof MerciRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
+  '/_authenticated/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/merci' | '/app' | '/app/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/merci'
+    | '/app'
+    | '/app/'
+    | '/app/demandes/$id'
+    | '/app/demandes/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/merci' | '/app'
+  to: '/' | '/auth' | '/merci' | '/app' | '/app/demandes/$id' | '/app/demandes'
   id:
     | '__root__'
     | '/'
@@ -81,6 +108,8 @@ export interface FileRouteTypes {
     | '/merci'
     | '/_authenticated/app'
     | '/_authenticated/app/'
+    | '/_authenticated/app/demandes/$id'
+    | '/_authenticated/app/demandes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -134,15 +163,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/demandes/': {
+      id: '/_authenticated/app/demandes/'
+      path: '/demandes'
+      fullPath: '/app/demandes/'
+      preLoaderRoute: typeof AuthenticatedAppDemandesIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/demandes/$id': {
+      id: '/_authenticated/app/demandes/$id'
+      path: '/demandes/$id'
+      fullPath: '/app/demandes/$id'
+      preLoaderRoute: typeof AuthenticatedAppDemandesIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppDemandesIdRoute: typeof AuthenticatedAppDemandesIdRoute
+  AuthenticatedAppDemandesIndexRoute: typeof AuthenticatedAppDemandesIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppDemandesIdRoute: AuthenticatedAppDemandesIdRoute,
+  AuthenticatedAppDemandesIndexRoute: AuthenticatedAppDemandesIndexRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =
