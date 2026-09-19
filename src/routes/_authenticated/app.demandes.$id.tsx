@@ -29,6 +29,12 @@ import {
 } from "@/lib/quotes-shared";
 import { cn } from "@/lib/utils";
 
+const URGENCY: Record<string, string> = {
+  faible: "faible",
+  moyenne: "moyenne",
+  elevee: "élevée",
+};
+
 export const Route = createFileRoute("/_authenticated/app/demandes/$id")({
   head: () => ({
     meta: [
