@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Loader2, Mail, Search, Send, Sparkles, Trash2, Upload } from "lucide-react";
+import { AtSign, Loader2, Mail, Search, Send, Sparkles, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import {
   deleteProspect,
+  findProspectEmail,
   generateOutreach,
   importProspects,
   listProspects,
@@ -79,6 +80,7 @@ function ProspectingPage() {
   const runStatus = useServerFn(updateProspectStatus);
   const runPatch = useServerFn(updateProspect);
   const runDelete = useServerFn(deleteProspect);
+  const runFindEmail = useServerFn(findProspectEmail);
 
   const { data, isLoading } = useQuery({
     queryKey: ["prospects"],
