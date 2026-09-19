@@ -119,9 +119,10 @@ export async function searchLocalBusinesses(
       languageCode: "fr",
       regionCode: "FR",
       pageSize: MAX_RESULTS_PER_SEARCH,
-      locationRestriction: {
+      locationBias: {
         circle: { center, radius: Math.round(radiusKm * 1000) },
       },
+
     }),
   });
 
