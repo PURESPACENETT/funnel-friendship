@@ -1,4 +1,6 @@
 import type { QuoteRequestInput } from "./quotes-shared";
+import { CLIENT_TYPES, FREQUENCIES, formatEuros, labelOf, scoreLabel } from "./quotes-shared";
+import { sendTemplateEmail } from "./email-templates/send-email";
 
 export interface NewRequestPayload {
   id: string;
@@ -10,16 +12,51 @@ export interface NewRequestPayload {
 
 /**
  * Sends the owner alert + prospect confirmation for a new quote request.
- * Email delivery is wired once the sender domain is configured for this
- * project; until then the request is still saved and visible in the dashboard.
+ * Email failures are logged but never block the request — it is already
+ * saved and visible in the dashboard.
  */
 export async function notifyNewRequest(payload: NewRequestPayload): Promise<void> {
-  console.log(
-    "New quote request",
-    payload.id,
-    payload.input.email,
-    payload.estimate,
-    "owner:",
-    payload.ownerEmail,
-  );
+  const { id, estimate, score, input, ownerEmail } = payload;
+  const estimateMin = formatEuros(estimate.min);
+  const estimateMax = formatEuros(estimate.max);
+  const frequency = labelOf(FREQUENCIES, input.frequency);
+  const clientType = labelOf(CLIENT_TYPES, input.clientType);
+
+  try {
+    await sendTemplateEmail("request-confirmation", input.email, {
+      templateData: {
+        name: input.name,
+        estimateMin,
+        estimateMax,
+        frequency,
+        city: input.city,
+      },
+      idempotencyKey: `request-confirmation-${id}`,
+    });
+  } catch (error) {
+    console.error("Prospect confirmation email failed", id, error);
+  }
+
+  if (!ownerEmail) return;
+  try {
+    await sendTemplateEmail("new-request-owner", ownerEmail, {
+      templateData: {
+        clientType,
+        name: input.name,
+        email: input.email,
+        phone: input.phone,
+        city: input.city,
+        postalCode: input.postalCode,
+        surface: input.surface,
+        frequency,
+        estimateMin,
+        estimateMax,
+        scoreLabel: scoreLabel(score),
+        requestId: id,
+      },
+      idempotencyKey: `new-request-owner-${id}`,
+    });
+  } catch (error) {
+    console.error("Owner alert email failed", id, error);
+  }
 }
