@@ -56,10 +56,16 @@ export const AREAS: string[] = [
 
 export const MAX_RESULTS_PER_SEARCH = 15;
 
+export const DEFAULT_RADIUS_KM = 10;
+export const MIN_RADIUS_KM = 1;
+export const MAX_RADIUS_KM = 50;
+
 export const prospectSearchSchema = z.object({
   sector: z.string().trim().min(2).max(60),
   area: z.string().trim().min(2).max(80),
+  radiusKm: z.number().int().min(MIN_RADIUS_KM).max(MAX_RADIUS_KM).default(DEFAULT_RADIUS_KM),
 });
+
 
 export const prospectPatchSchema = z.object({
   id: z.string().uuid(),

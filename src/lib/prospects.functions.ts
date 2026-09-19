@@ -18,15 +18,108 @@ const statusEnum = z.enum([
   "ecarte",
 ]);
 
+/** How many freshly found companies get their email + message prepared automatically. */
+const AUTO_PREPARE_LIMIT = 6;
+
+interface FreshProspect {
+  id: string;
+  company_name: string;
+  sector: string | null;
+  city: string | null;
+  postal_code: string | null;
+  website: string | null;
+  notes: string | null;
+  phone: string | null;
+  reviews_count: number | null;
+}
+
+/**
+ * For each newly found company: look for a public email, identify the contact,
+ * then write the first message and store it for review. Nothing is sent here.
+ */
+async function autoPrepare(
+  supabase: { from: (table: string) => any },
+  rows: FreshProspect[],
+): Promise<number> {
+  const [{ scanWebsiteForEmails, findContactViaClay, clayConfigured }, { draftOutreachEmail }] =
+    await Promise.all([import("./prospect-email.server"), import("./prospect-ai.server")]);
+
+  const results = await Promise.allSettled(
+    rows.slice(0, AUTO_PREPARE_LIMIT).map(async (row) => {
+      const emails = row.website ? await scanWebsiteForEmails(row.website).catch(() => []) : [];
+      const email = emails[0] ?? null;
+
+      let contact: Awaited<ReturnType<typeof findContactViaClay>> = null;
+      if (clayConfigured()) {
+        contact = await findContactViaClay({
+          website: row.website,
+          companyName: row.company_name,
+        }).catch(() => null);
+      }
+
+      const draft = await draftOutreachEmail({
+        companyName: row.company_name,
+        sector: row.sector,
+        city: row.city,
+        postalCode: row.postal_code,
+        website: row.website,
+        notes: [row.notes, contact ? `Interlocuteur : ${contact.contactName}` : null]
+          .filter(Boolean)
+          .join("\n") || null,
+      }).catch(() => null);
+
+      const { error } = await supabase
+        .from("prospects")
+        .update({
+          ...(email ? { email } : {}),
+          found_emails: emails,
+          ...(contact
+            ? {
+                contact_name: contact.contactName,
+                contact_title: contact.title,
+                contact_linkedin: contact.linkedin,
+              }
+            : {}),
+          ...(draft
+            ? {
+                outreach_subject: draft.subject,
+                outreach_body: draft.body,
+                outreach_generated_at: new Date().toISOString(),
+              }
+            : {}),
+          score: scoreProspect({
+            postalCode: row.postal_code,
+            website: row.website,
+            phone: row.phone,
+            email,
+            reviewsCount: row.reviews_count,
+            sector: row.sector,
+          }),
+        })
+        .eq("id", row.id);
+      if (error) throw new Error(error.message);
+      return Boolean(draft);
+    }),
+  );
+
+  return results.filter((r) => r.status === "fulfilled" && r.value).length;
+}
+
 /** Runs one bounded prospect search and stores the new companies found. */
 export const searchProspects = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => prospectSearchSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { searchLocalBusinesses } = await import("./prospect-search.server");
-    const found = await searchLocalBusinesses(data.sector, data.area);
+    const { prospects: found, center } = await searchLocalBusinesses(
+      data.sector,
+      data.area,
+      data.radiusKm,
+    );
 
     let created = 0;
+    let prepared = 0;
+
     if (found.length > 0) {
       const { data: existing, error: existingError } = await context.supabase
         .from("prospects")
@@ -41,23 +134,37 @@ export const searchProspects = createServerFn({ method: "POST" })
       const fresh = found.filter((f) => !known.has(f.external_id));
 
       if (fresh.length > 0) {
-        const { error } = await context.supabase.from("prospects").insert(
-          fresh.map((f) => ({ ...f, source: "recherche", status: "a_contacter" as const })),
-        );
+        const { data: inserted, error } = await context.supabase
+          .from("prospects")
+          .insert(
+            fresh.map((f) => ({ ...f, source: "recherche", status: "a_contacter" as const })),
+          )
+          .select(
+            "id, company_name, sector, city, postal_code, website, notes, phone, reviews_count",
+          );
         if (error) throw new Error(error.message);
         created = fresh.length;
+
+        try {
+          prepared = await autoPrepare(context.supabase, (inserted ?? []) as FreshProspect[]);
+        } catch (prepareError) {
+          console.error("auto prepare failed", prepareError);
+        }
       }
     }
 
     await context.supabase.from("prospect_searches").insert({
       sector: data.sector,
       area: data.area,
+      radius_km: data.radiusKm,
+      center_lat: center.latitude,
+      center_lng: center.longitude,
       found_count: found.length,
       new_count: created,
       created_by: context.userId,
     });
 
-    return { found: found.length, created };
+    return { found: found.length, created, prepared, center };
   });
 
 export const listProspects = createServerFn({ method: "GET" })
@@ -149,7 +256,9 @@ export const generateOutreach = createServerFn({ method: "POST" })
       city: row.city,
       postalCode: row.postal_code,
       website: row.website,
-      notes: row.notes,
+      notes: [row.notes, row.contact_name ? `Interlocuteur : ${row.contact_name}` : null]
+        .filter(Boolean)
+        .join("\n") || null,
     });
     if (!draft) throw new Error("La rédaction automatique a échoué, réessayez.");
 
@@ -253,8 +362,8 @@ export const importProspects = createServerFn({ method: "POST" })
     return { created: rows.length };
   });
 
-/** Looks for a professional email: company website first, then Apollo.io. */
-export const findProspectEmail = createServerFn({ method: "POST" })
+/** Reads the company website and returns every public address found. */
+export const scanProspectWebsite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
@@ -265,54 +374,18 @@ export const findProspectEmail = createServerFn({ method: "POST" })
       .maybeSingle();
     if (readError) throw new Error(readError.message);
     if (!row) throw new Error("Prospect introuvable");
+    if (!row.website)
+      throw new Error("Cette entreprise n'a pas de site web enregistré.");
 
-    const { scanWebsiteForEmail, findEmailViaApollo, apolloConfigured } = await import(
-      "./prospect-email.server"
-    );
+    const { scanWebsiteForEmails } = await import("./prospect-email.server");
+    const emails = await scanWebsiteForEmails(row.website);
 
-    let email: string | null = null;
-    let source: "site" | "apollo" | null = null;
-    let contactNote: string | null = null;
-
-    try {
-      email = await scanWebsiteForEmail(row.website);
-      if (email) source = "site";
-    } catch (error) {
-      console.error("website email scan failed", error);
-    }
-
-    if (!email && apolloConfigured()) {
-      try {
-        const found = await findEmailViaApollo({
-          website: row.website,
-          companyName: row.company_name,
-        });
-        if (found) {
-          email = found.email;
-          source = "apollo";
-          contactNote = [found.contactName, found.title].filter(Boolean).join(" — ") || null;
-        }
-      } catch (error) {
-        console.error("apollo email lookup failed", error);
-      }
-    }
-
-    if (!email) {
-      return {
-        found: false as const,
-        apollo: apolloConfigured(),
-      };
-    }
-
-    const notes = contactNote
-      ? [row.notes, `Contact trouvé : ${contactNote}`].filter(Boolean).join("\n")
-      : row.notes;
-
+    const email = row.email ?? emails[0] ?? null;
     const { error } = await context.supabase
       .from("prospects")
       .update({
+        found_emails: emails,
         email,
-        notes: notes ? notes.slice(0, 2000) : null,
         score: scoreProspect({
           postalCode: row.postal_code,
           website: row.website,
@@ -325,7 +398,77 @@ export const findProspectEmail = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
 
-    return { found: true as const, email, source };
+    return { emails, email };
+  });
+
+/** Looks for a professional email on the website, and the contact to address via Clay. */
+export const findProspectEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: row, error: readError } = await context.supabase
+      .from("prospects")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (readError) throw new Error(readError.message);
+    if (!row) throw new Error("Prospect introuvable");
+
+    const { scanWebsiteForEmails, findContactViaClay, clayConfigured } = await import(
+      "./prospect-email.server"
+    );
+
+    let emails: string[] = [];
+    try {
+      emails = await scanWebsiteForEmails(row.website);
+    } catch (error) {
+      console.error("website email scan failed", error);
+    }
+
+    let contact: Awaited<ReturnType<typeof findContactViaClay>> = null;
+    if (clayConfigured()) {
+      try {
+        contact = await findContactViaClay({
+          website: row.website,
+          companyName: row.company_name,
+        });
+      } catch (error) {
+        console.error("clay contact lookup failed", error);
+      }
+    }
+
+    const email = emails[0] ?? row.email ?? null;
+
+    const { error } = await context.supabase
+      .from("prospects")
+      .update({
+        email,
+        found_emails: emails.length > 0 ? emails : row.found_emails,
+        ...(contact
+          ? {
+              contact_name: contact.contactName,
+              contact_title: contact.title,
+              contact_linkedin: contact.linkedin,
+            }
+          : {}),
+        score: scoreProspect({
+          postalCode: row.postal_code,
+          website: row.website,
+          phone: row.phone,
+          email,
+          reviewsCount: row.reviews_count,
+          sector: row.sector,
+        }),
+      })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+
+    return {
+      found: Boolean(email) as boolean,
+      email,
+      emails,
+      contact,
+    };
   });
 
 export const deleteProspect = createServerFn({ method: "POST" })

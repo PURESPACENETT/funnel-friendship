@@ -50,29 +50,38 @@ export type Database = {
       prospect_searches: {
         Row: {
           area: string
+          center_lat: number | null
+          center_lng: number | null
           created_at: string
           created_by: string | null
           found_count: number
           id: string
           new_count: number
+          radius_km: number
           sector: string
         }
         Insert: {
           area: string
+          center_lat?: number | null
+          center_lng?: number | null
           created_at?: string
           created_by?: string | null
           found_count?: number
           id?: string
           new_count?: number
+          radius_km?: number
           sector: string
         }
         Update: {
           area?: string
+          center_lat?: number | null
+          center_lng?: number | null
           created_at?: string
           created_by?: string | null
           found_count?: number
           id?: string
           new_count?: number
+          radius_km?: number
           sector?: string
         }
         Relationships: []
@@ -82,10 +91,16 @@ export type Database = {
           address: string | null
           city: string | null
           company_name: string
+          contact_linkedin: string | null
+          contact_name: string | null
+          contact_title: string | null
           created_at: string
           email: string | null
           external_id: string | null
+          found_emails: string[]
           id: string
+          latitude: number | null
+          longitude: number | null
           notes: string | null
           outreach_body: string | null
           outreach_generated_at: string | null
@@ -106,10 +121,16 @@ export type Database = {
           address?: string | null
           city?: string | null
           company_name: string
+          contact_linkedin?: string | null
+          contact_name?: string | null
+          contact_title?: string | null
           created_at?: string
           email?: string | null
           external_id?: string | null
+          found_emails?: string[]
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           notes?: string | null
           outreach_body?: string | null
           outreach_generated_at?: string | null
@@ -130,10 +151,16 @@ export type Database = {
           address?: string | null
           city?: string | null
           company_name?: string
+          contact_linkedin?: string | null
+          contact_name?: string | null
+          contact_title?: string | null
           created_at?: string
           email?: string | null
           external_id?: string | null
+          found_emails?: string[]
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           notes?: string | null
           outreach_body?: string | null
           outreach_generated_at?: string | null
