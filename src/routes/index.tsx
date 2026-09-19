@@ -327,14 +327,18 @@ function QuoteRequestPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="message">Précisions (optionnel)</Label>
+                    <Label htmlFor="message">Décrivez votre besoin avec vos mots</Label>
                     <Textarea
                       id="message"
-                      rows={3}
+                      rows={5}
                       value={form.message}
                       onChange={(e) => set("message", e.target.value)}
-                      placeholder="Accès, horaires, contraintes particulières..."
+                      placeholder="Ex. : bureaux sur 2 étages, passage après 18h, sanitaires et vitres intérieures, démarrage souhaité rapidement..."
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Votre description est analysée automatiquement pour préparer notre réponse :
+                      accès, horaires, contraintes et priorité.
+                    </p>
                   </div>
                 </>
               )}
