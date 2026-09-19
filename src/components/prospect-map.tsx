@@ -89,6 +89,8 @@ export default function ProspectMap({ pins, center, radiusKm, onSelect }: Props)
           center: { lat: fallbackCenter.latitude, lng: fallbackCenter.longitude },
           zoom: 12,
           mapTypeControl: false,
+          clickableIcons: false,
+
           streetViewControl: false,
           fullscreenControl: false,
         });
