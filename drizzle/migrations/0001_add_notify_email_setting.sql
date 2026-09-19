@@ -1,0 +1,1 @@
+ALTER TABLE public.pricing_settings ADD COLUMN notify_email TEXT;

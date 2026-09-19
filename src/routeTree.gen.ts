@@ -10,33 +10,131 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as MerciRouteImport } from './routes/merci'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppTarifsRouteImport } from './routes/_authenticated/app.tarifs'
+import { Route as AuthenticatedAppDemandesIndexRouteImport } from './routes/_authenticated/app.demandes.index'
+import { Route as AuthenticatedAppDemandesIdRouteImport } from './routes/_authenticated/app.demandes.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MerciRoute = MerciRouteImport.update({
+  id: '/merci',
+  path: '/merci',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppTarifsRoute = AuthenticatedAppTarifsRouteImport.update({
+  id: '/tarifs',
+  path: '/tarifs',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppDemandesIndexRoute =
+  AuthenticatedAppDemandesIndexRouteImport.update({
+    id: '/demandes/',
+    path: '/demandes/',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppDemandesIdRoute =
+  AuthenticatedAppDemandesIdRouteImport.update({
+    id: '/demandes/$id',
+    path: '/demandes/$id',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/merci': typeof MerciRoute
+  '/app': typeof AuthenticatedAppRouteWithChildren
+  '/app/tarifs': typeof AuthenticatedAppTarifsRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
+  '/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/merci': typeof MerciRoute
+  '/app/tarifs': typeof AuthenticatedAppTarifsRoute
+  '/app': typeof AuthenticatedAppIndexRoute
+  '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
+  '/app/demandes': typeof AuthenticatedAppDemandesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/merci': typeof MerciRoute
+  '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/app/tarifs': typeof AuthenticatedAppTarifsRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
+  '/_authenticated/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/merci'
+    | '/app'
+    | '/app/tarifs'
+    | '/app/'
+    | '/app/demandes/$id'
+    | '/app/demandes/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/merci'
+    | '/app/tarifs'
+    | '/app'
+    | '/app/demandes/$id'
+    | '/app/demandes'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/merci'
+    | '/_authenticated/app'
+    | '/_authenticated/app/tarifs'
+    | '/_authenticated/app/'
+    | '/_authenticated/app/demandes/$id'
+    | '/_authenticated/app/demandes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  MerciRoute: typeof MerciRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +146,98 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/merci': {
+      id: '/merci'
+      path: '/merci'
+      fullPath: '/merci'
+      preLoaderRoute: typeof MerciRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/tarifs': {
+      id: '/_authenticated/app/tarifs'
+      path: '/tarifs'
+      fullPath: '/app/tarifs'
+      preLoaderRoute: typeof AuthenticatedAppTarifsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/demandes/': {
+      id: '/_authenticated/app/demandes/'
+      path: '/demandes'
+      fullPath: '/app/demandes/'
+      preLoaderRoute: typeof AuthenticatedAppDemandesIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/demandes/$id': {
+      id: '/_authenticated/app/demandes/$id'
+      path: '/demandes/$id'
+      fullPath: '/app/demandes/$id'
+      preLoaderRoute: typeof AuthenticatedAppDemandesIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
+interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppTarifsRoute: typeof AuthenticatedAppTarifsRoute
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppDemandesIdRoute: typeof AuthenticatedAppDemandesIdRoute
+  AuthenticatedAppDemandesIndexRoute: typeof AuthenticatedAppDemandesIndexRoute
+}
+
+const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppTarifsRoute: AuthenticatedAppTarifsRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppDemandesIdRoute: AuthenticatedAppDemandesIdRoute,
+  AuthenticatedAppDemandesIndexRoute: AuthenticatedAppDemandesIndexRoute,
+}
+
+const AuthenticatedAppRouteWithChildren =
+  AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  MerciRoute: MerciRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
