@@ -75,6 +75,9 @@ export const submitQuoteRequest = createServerFn({ method: "POST" })
         estimate,
         score,
         input: data,
+        ownerEmail:
+          ((pricingRow as Record<string, unknown> | null)?.["notify_email"] as string | null) ??
+          null,
       });
     } catch (notifyError) {
       console.error("Email notification failed", notifyError);
@@ -195,7 +198,11 @@ export const getPricing = createServerFn({ method: "GET" })
       .eq("id", PRICING_ID)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return toPricing(data as Record<string, unknown> | null);
+    const row = data as Record<string, unknown> | null;
+    return {
+      ...toPricing(row),
+      notify_email: (row?.["notify_email"] as string | null) ?? "",
+    };
   });
 
 export const updatePricing = createServerFn({ method: "POST" })
@@ -208,6 +215,7 @@ export const updatePricing = createServerFn({ method: "POST" })
         property_rates: z.record(z.string(), z.coerce.number().min(0).max(100)),
         frequency_multipliers: z.record(z.string(), z.coerce.number().min(0).max(10)),
         service_surcharges: z.record(z.string(), z.coerce.number().min(0).max(10)),
+        notify_email: z.string().trim().email().max(255).or(z.literal("")),
       })
       .parse(input),
   )
@@ -220,6 +228,7 @@ export const updatePricing = createServerFn({ method: "POST" })
         property_rates: data.property_rates,
         frequency_multipliers: data.frequency_multipliers,
         service_surcharges: data.service_surcharges,
+        notify_email: data.notify_email || null,
       })
       .eq("id", PRICING_ID);
     if (error) throw new Error(error.message);
