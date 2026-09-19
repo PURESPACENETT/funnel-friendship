@@ -21,12 +21,17 @@ interface Props {
 const BROWSER_KEY = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY"] as
   | string
   | undefined;
+const CHANNEL = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID"] as
+  | string
+  | undefined;
+
+const CALLBACK = "__pureSpaceMapsReady";
 
 let loader: Promise<void> | null = null;
 
 function loadMaps(): Promise<void> {
   if (typeof window === "undefined") return Promise.reject(new Error("no window"));
-  const w = window as unknown as { google?: { maps?: unknown } };
+  const w = window as unknown as Record<string, unknown> & { google?: { maps?: unknown } };
   if (w.google?.maps) return Promise.resolve();
   if (loader) return loader;
   loader = new Promise<void>((resolve, reject) => {
@@ -34,15 +39,23 @@ function loadMaps(): Promise<void> {
       reject(new Error("missing key"));
       return;
     }
+    w[CALLBACK] = () => resolve();
+    const url = new URL("https://maps.googleapis.com/maps/api/js");
+    url.searchParams.set("key", BROWSER_KEY);
+    url.searchParams.set("loading", "async");
+    url.searchParams.set("callback", CALLBACK);
+    url.searchParams.set("language", "fr");
+    url.searchParams.set("region", "FR");
+    if (CHANNEL) url.searchParams.set("channel", CHANNEL);
     const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&language=fr&region=FR`;
+    script.src = url.toString();
     script.async = true;
-    script.onload = () => resolve();
     script.onerror = () => reject(new Error("script error"));
     document.head.appendChild(script);
   });
   return loader;
 }
+
 
 function cssColor(name: string, fallback: string): string {
   if (typeof window === "undefined") return fallback;
