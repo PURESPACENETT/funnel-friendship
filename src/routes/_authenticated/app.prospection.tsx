@@ -197,9 +197,7 @@ function ProspectingPage() {
         void refresh();
       } else {
         toast.error(
-          result.apollo
-            ? "Aucune adresse trouvée pour cette entreprise."
-            : "Rien trouvé sur leur site. Branchez Apollo pour chercher plus loin.",
+          "Aucune adresse trouvée. Ouvrez leur site web et copiez l'email de leur page Contact.",
         );
       }
     },
