@@ -49,6 +49,7 @@ function RequestDetailPage() {
   const setStatus = useServerFn(updateRequestStatus);
   const createNote = useServerFn(addNote);
   const removeRequest = useServerFn(deleteRequest);
+  const runQualify = useServerFn(qualifyRequest);
 
   const [note, setNote] = useState("");
 
@@ -84,6 +85,15 @@ function RequestDetailPage() {
       navigate({ to: "/app/demandes" });
     },
     onError: () => toast.error("Suppression impossible"),
+  });
+
+  const qualifyMutation = useMutation({
+    mutationFn: () => runQualify({ data: { id } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["request", id] });
+      toast.success("Résumé mis à jour");
+    },
+    onError: () => toast.error("Analyse indisponible pour le moment"),
   });
 
   if (isLoading) return <Skeleton className="h-96 rounded-xl" />;
