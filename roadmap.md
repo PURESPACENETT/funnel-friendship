@@ -10,3 +10,4 @@
 - [x] Analyse automatique du besoin écrit (résumé qualifié IA sur la fiche prospect)
 - [x] Pipeline par statut dans l'espace privé
 - [x] Prospection : recherche d'entreprises locales (Google Maps), import de listes, message de premier contact rédigé par l'IA, envoi après relecture
+- [x] Recherche d'adresse email : scan automatique du site web du prospect (Apollo abandonné, connexion impossible)
