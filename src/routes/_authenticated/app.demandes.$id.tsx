@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Mail, MapPin, Phone, Trash2 } from "lucide-react";
+import { ArrowLeft, Mail, MapPin, Phone, RefreshCw, Sparkles, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
   addNote,
   deleteRequest,
   getRequest,
+  qualifyRequest,
   updateRequestStatus,
 } from "@/lib/quotes.functions";
 import {
