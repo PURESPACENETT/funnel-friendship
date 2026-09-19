@@ -1,0 +1,6 @@
+ALTER TABLE public.quote_requests
+  ADD COLUMN IF NOT EXISTS ai_summary TEXT,
+  ADD COLUMN IF NOT EXISTS ai_key_points TEXT[] NOT NULL DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS ai_urgency TEXT,
+  ADD COLUMN IF NOT EXISTS ai_next_step TEXT,
+  ADD COLUMN IF NOT EXISTS ai_generated_at TIMESTAMPTZ;
