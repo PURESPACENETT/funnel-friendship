@@ -29,7 +29,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -44,7 +44,14 @@ function AuthPage() {
     event.preventDefault();
     setBusy(true);
     try {
-      if (mode === "signup") {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success("Email de réinitialisation envoyé. Vérifiez votre boîte mail.");
+        setMode("signin");
+      } else if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -74,7 +81,11 @@ function AuthPage() {
         </div>
         <h1 className="mt-3 text-xl text-foreground">PURE SPACE NETT</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {mode === "signin" ? "Connectez-vous pour suivre vos demandes." : "Créez votre accès."}
+          {mode === "signin"
+            ? "Connectez-vous pour suivre vos demandes."
+            : mode === "signup"
+              ? "Créez votre accès."
+              : "Recevez un lien pour réinitialiser votre mot de passe."}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -88,21 +99,50 @@ function AuthPage() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Mot de passe</Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+          {mode !== "forgot" && (
+            <div className="space-y-1.5">
+              <div className="flex items-baseline justify-between">
+                <Label htmlFor="password">Mot de passe</Label>
+                {mode === "signin" && (
+                  <button
+                    type="button"
+                    onClick={() => setMode("forgot")}
+                    className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                  >
+                    Mot de passe oublié ?
+                  </button>
+                )}
+              </div>
+              <Input
+                id="password"
+                type="password"
+                required
+                minLength={8}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          )}
           <Button type="submit" className="w-full" disabled={busy}>
-            {busy ? "..." : mode === "signin" ? "Se connecter" : "Créer mon accès"}
+            {busy
+              ? "..."
+              : mode === "signin"
+                ? "Se connecter"
+                : mode === "signup"
+                  ? "Créer mon accès"
+                  : "Envoyer le lien"}
           </Button>
         </form>
+
+        {mode === "forgot" && (
+          <button
+            type="button"
+            onClick={() => setMode("signin")}
+            className="mt-3 w-full text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Retour à la connexion
+          </button>
+        )}
 
         <button
           type="button"
