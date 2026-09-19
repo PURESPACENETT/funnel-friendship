@@ -45,7 +45,7 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  component: QuoteRequestPage;
+  component: QuoteRequestPage,
 });
 
 type FormState = {
