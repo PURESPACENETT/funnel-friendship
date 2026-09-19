@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   ListChecks,
   LogOut,
+  Radar,
   SlidersHorizontal,
 } from "lucide-react";
 
@@ -19,6 +20,7 @@ const NAV = [
   { to: "/app", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
   { to: "/app/demandes", label: "Demandes", icon: ListChecks, exact: false },
   { to: "/app/pipeline", label: "Pipeline", icon: KanbanSquare, exact: false },
+  { to: "/app/prospection", label: "Prospection", icon: Radar, exact: false },
   { to: "/app/tarifs", label: "Tarifs", icon: SlidersHorizontal, exact: false },
 ] as const;
 
