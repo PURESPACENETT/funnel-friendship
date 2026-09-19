@@ -153,8 +153,12 @@ export const updateRequestStatus = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const patch: Record<string, unknown> = { status: data.status };
-    if (data.status !== "nouveau") patch["last_contacted_at"] = new Date().toISOString();
+    const patch = {
+      status: data.status,
+      ...(data.status !== "nouveau"
+        ? { last_contacted_at: new Date().toISOString() }
+        : {}),
+    };
     const { error } = await context.supabase
       .from("quote_requests")
       .update(patch)
