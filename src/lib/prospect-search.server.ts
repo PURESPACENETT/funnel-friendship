@@ -145,7 +145,15 @@ export async function searchLocalBusinesses(
 
   const prospects = places
     .filter((p) => p.id && p.displayName?.text)
+    .filter((p) => {
+      // locationBias is a hint, not a limit — enforce the chosen radius here.
+      const lat = p.location?.latitude;
+      const lng = p.location?.longitude;
+      if (typeof lat !== "number" || typeof lng !== "number") return true;
+      return distanceKm(center, { latitude: lat, longitude: lng }) <= radiusKm * 1.1;
+    })
     .slice(0, MAX_RESULTS_PER_SEARCH)
+
     .map((p) => {
       const parsed = parseAddress(p.formattedAddress);
       const entry = {
