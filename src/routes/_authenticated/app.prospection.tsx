@@ -184,6 +184,28 @@ function ProspectingPage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const findEmailMutation = useMutation({
+    mutationFn: (id: string) => runFindEmail({ data: { id } }),
+    onSuccess: (result) => {
+      if (result.found) {
+        setEmail(result.email);
+        toast.success(
+          result.source === "site"
+            ? "Adresse trouvée sur leur site web."
+            : "Adresse trouvée via Apollo.",
+        );
+        void refresh();
+      } else {
+        toast.error(
+          result.apollo
+            ? "Aucune adresse trouvée pour cette entreprise."
+            : "Rien trouvé sur leur site. Branchez Apollo pour chercher plus loin.",
+        );
+      }
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   const statusMutation = useMutation({
     mutationFn: (payload: { id: string; status: string }) =>
       runStatus({ data: payload as never }),
