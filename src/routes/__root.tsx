@@ -82,6 +82,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "author", content: "PURE SPACE NETT" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      {
+        name: "google-site-verification",
+        content: "bBWmkUBY_rYAsPNGRegNM_V-T_dHSM5zMuI8GaHYaWk",
+      },
     ],
     links: [
       {
