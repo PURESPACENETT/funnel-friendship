@@ -443,6 +443,12 @@ function QuoteRequestPage() {
           >
             Nettoyage Île-de-France
           </Link>
+          <Link
+            to="/nettoyage-de-bureaux"
+            className="underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Nettoyage de bureaux
+          </Link>
         </nav>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span>© {new Date().getFullYear()} PURE SPACE NETT</span>
