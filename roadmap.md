@@ -18,4 +18,7 @@
 - [x] Référencement local : pages Nettoyage Pantin / Paris / Île-de-France, données structurées, plan du site
 - [ ] Créer / compléter la fiche Google Business Profile et la fiche Pages Jaunes (à faire par le gérant)
 - [x] Prospection Paris + Île-de-France lancée (Paris 11e, Boulogne, Montreuil, Saint-Denis) + test d'envoi validé
+- [x] Numéro de téléphone réel (07 59 48 30 21) sur les pages publiques
+- [x] Prospection automatique du lundi au vendredi à 9h (Paris) : recherche, envoi des premiers messages, alerte email à chaque fiche passée en « Contacté »
+- [x] Filtrage des adresses non démarchables (placeholders de site, dpo@, rgpd@, webmaster@…)
 
