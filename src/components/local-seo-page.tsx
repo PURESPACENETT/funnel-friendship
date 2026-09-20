@@ -40,7 +40,7 @@ export function localBusinessJsonLd(props: LocalPageProps, path: string) {
     name: BUSINESS.name,
     description: props.intro,
     url: `https://funnel-friendship.lovable.app${path}`,
-    telephone: BUSINESS.phone,
+    telephone: BUSINESS.phoneE164,
     email: BUSINESS.email,
     sameAs: [BUSINESS.website],
     address: {
@@ -106,7 +106,7 @@ export function LocalSeoPage(props: LocalPageProps) {
             </Link>
           </Button>
           <Button variant="outline" asChild>
-            <a href={`tel:${BUSINESS.phone.replace(/\s/g, "")}`}>
+            <a href={`tel:${BUSINESS.phoneE164}`}>
               <Phone className="size-4" /> Nous appeler
             </a>
           </Button>
