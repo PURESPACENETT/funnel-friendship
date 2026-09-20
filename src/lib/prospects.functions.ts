@@ -323,8 +323,19 @@ export const sendOutreach = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
 
+    try {
+      const { notifyOwner } = await import("./prospection-daily.server");
+      await notifyOwner(
+        [{ name: row.company_name, email: row.email, city: row.city }],
+        "manuel",
+      );
+    } catch (alertError) {
+      console.error("owner contacted alert failed", alertError);
+    }
+
     return { sent: true as const };
   });
+
 
 /** Imports a pasted list: one company per line — Nom; email; téléphone; ville */
 export const importProspects = createServerFn({ method: "POST" })
