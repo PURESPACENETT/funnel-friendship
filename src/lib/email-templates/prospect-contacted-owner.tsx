@@ -32,9 +32,8 @@ export function ProspectContactedOwner({
   return (
     <Html lang="fr">
       <Head />
-      <Preview>
-        {count} prospect{count > 1 ? 's' : ''} passé{count > 1 ? 's' : ''} en Contacté
-      </Preview>
+      <Preview>{`${count} prospect${count > 1 ? 's' : ''} passé${count > 1 ? 's' : ''} en Contacté`}</Preview>
+
       <Body
         style={{
           backgroundColor: '#f5f7f7',
