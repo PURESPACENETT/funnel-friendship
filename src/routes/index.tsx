@@ -423,12 +423,35 @@ function QuoteRequestPage() {
         </div>
       </section>
 
-      <footer className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-5 py-8 text-sm text-muted-foreground">
-        <span>© {new Date().getFullYear()} PURE SPACE NETT</span>
-        <Link to="/auth" className="underline-offset-4 hover:text-foreground hover:underline">
-          Espace interne
-        </Link>
+      <footer className="mx-auto max-w-5xl space-y-4 px-5 py-8 text-sm text-muted-foreground">
+        <nav className="flex flex-wrap gap-4">
+          <Link
+            to="/nettoyage-pantin"
+            className="underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Nettoyage Pantin
+          </Link>
+          <Link
+            to="/nettoyage-paris"
+            className="underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Nettoyage Paris
+          </Link>
+          <Link
+            to="/nettoyage-ile-de-france"
+            className="underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Nettoyage Île-de-France
+          </Link>
+        </nav>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span>© {new Date().getFullYear()} PURE SPACE NETT</span>
+          <Link to="/auth" className="underline-offset-4 hover:text-foreground hover:underline">
+            Espace interne
+          </Link>
+        </div>
       </footer>
+
     </div>
   );
 }
