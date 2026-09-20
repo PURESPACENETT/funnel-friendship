@@ -17,6 +17,22 @@ const BAD_FRAGMENTS = [
   "email.com",
   "votre-email",
   "@sentry.io",
+  // placeholders souvent laissés dans les modèles de site
+  "domaine.com",
+  "utilisateur@",
+  "votre@",
+  "nom@",
+  "prenom.nom",
+  "monemail",
+  "adresse@",
+  "test@",
+  // adresses juridiques / RGPD : ne jamais démarcher
+  "dpo@",
+  "rgpd@",
+  "privacy@",
+  "abuse@",
+  "postmaster@",
+  "webmaster@",
 ];
 
 const BAD_SUFFIXES = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".css", ".js"];
