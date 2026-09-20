@@ -24,6 +24,7 @@ import { Route as AuthenticatedAppProspectionRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppTarifsRouteImport } from './routes/_authenticated/app.tarifs'
 import { Route as AuthenticatedAppDemandesIndexRouteImport } from './routes/_authenticated/app.demandes.index'
 import { Route as AuthenticatedAppDemandesIdRouteImport } from './routes/_authenticated/app.demandes.$id'
+import { Route as ApiPublicHooksProspectionQuotidienneRouteImport } from './routes/api/public/hooks/prospection-quotidienne'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -104,6 +105,12 @@ const AuthenticatedAppDemandesIdRoute =
     path: '/demandes/$id',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const ApiPublicHooksProspectionQuotidienneRoute =
+  ApiPublicHooksProspectionQuotidienneRouteImport.update({
+    id: '/api/public/hooks/prospection-quotidienne',
+    path: '/api/public/hooks/prospection-quotidienne',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -125,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/app/tarifs': typeof AuthenticatedAppTarifsRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
+  '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
@@ -141,6 +149,7 @@ export interface FileRoutesByTo {
   '/app/tarifs': typeof AuthenticatedAppTarifsRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
+  '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/app/demandes': typeof AuthenticatedAppDemandesIndexRoute
 }
@@ -160,6 +169,7 @@ export interface FileRoutesById {
   '/_authenticated/app/tarifs': typeof AuthenticatedAppTarifsRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
+  '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/app/tarifs'
     | '/app/'
     | '/app/demandes/$id'
+    | '/api/public/hooks/prospection-quotidienne'
     | '/lovable/email/transactional/preview'
     | '/app/demandes/'
   fileRoutesByTo: FileRoutesByTo
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/app/tarifs'
     | '/app'
     | '/app/demandes/$id'
+    | '/api/public/hooks/prospection-quotidienne'
     | '/lovable/email/transactional/preview'
     | '/app/demandes'
   id:
@@ -213,6 +225,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/tarifs'
     | '/_authenticated/app/'
     | '/_authenticated/app/demandes/$id'
+    | '/api/public/hooks/prospection-quotidienne'
     | '/lovable/email/transactional/preview'
     | '/_authenticated/app/demandes/'
   fileRoutesById: FileRoutesById
@@ -226,6 +239,7 @@ export interface RootRouteChildren {
   NettoyagePantinRoute: typeof NettoyagePantinRoute
   NettoyageParisRoute: typeof NettoyageParisRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiPublicHooksProspectionQuotidienneRoute: typeof ApiPublicHooksProspectionQuotidienneRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -336,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDemandesIdRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/api/public/hooks/prospection-quotidienne': {
+      id: '/api/public/hooks/prospection-quotidienne'
+      path: '/api/public/hooks/prospection-quotidienne'
+      fullPath: '/api/public/hooks/prospection-quotidienne'
+      preLoaderRoute: typeof ApiPublicHooksProspectionQuotidienneRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
@@ -387,6 +408,8 @@ const rootRouteChildren: RootRouteChildren = {
   NettoyagePantinRoute: NettoyagePantinRoute,
   NettoyageParisRoute: NettoyageParisRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiPublicHooksProspectionQuotidienneRoute:
+    ApiPublicHooksProspectionQuotidienneRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport

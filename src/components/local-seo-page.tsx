@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 
 export const BUSINESS = {
   name: "PURE SPACE NETT",
-  phone: "+33 6 00 00 00 00",
+  phone: "07 59 48 30 21",
+  phoneE164: "+33759483021",
+
   email: "contact@purespacenett.com",
   website: "https://www.purespacenett.com",
   street: "Le Pré-Saint-Gervais",
@@ -38,7 +40,7 @@ export function localBusinessJsonLd(props: LocalPageProps, path: string) {
     name: BUSINESS.name,
     description: props.intro,
     url: `https://funnel-friendship.lovable.app${path}`,
-    telephone: BUSINESS.phone,
+    telephone: BUSINESS.phoneE164,
     email: BUSINESS.email,
     sameAs: [BUSINESS.website],
     address: {
@@ -104,7 +106,7 @@ export function LocalSeoPage(props: LocalPageProps) {
             </Link>
           </Button>
           <Button variant="outline" asChild>
-            <a href={`tel:${BUSINESS.phone.replace(/\s/g, "")}`}>
+            <a href={`tel:${BUSINESS.phoneE164}`}>
               <Phone className="size-4" /> Nous appeler
             </a>
           </Button>
