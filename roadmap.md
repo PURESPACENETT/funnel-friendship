@@ -23,3 +23,5 @@
 - [x] Prospection automatique du lundi au vendredi à 9h (Paris) : recherche, envoi des premiers messages, alerte email à chaque fiche passée en « Contacté »
 - [x] Filtrage des adresses non démarchables (placeholders de site, dpo@, rgpd@, webmaster@…)
 
+- [x] Page « Nettoyage de bureaux » (route, FAQ, données structurées, lien pied de page, plan du site)
+- [x] Google Search Console : connexion rattachée, site vérifié (tag META), propriété ajoutée, plan du site envoyé
