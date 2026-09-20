@@ -13,6 +13,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as MerciRouteImport } from './routes/merci'
+import { Route as NettoyageIleDeFranceRouteImport } from './routes/nettoyage-ile-de-france'
+import { Route as NettoyagePantinRouteImport } from './routes/nettoyage-pantin'
+import { Route as NettoyageParisRouteImport } from './routes/nettoyage-paris'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
@@ -40,6 +43,21 @@ const AuthRoute = AuthRouteImport.update({
 const MerciRoute = MerciRouteImport.update({
   id: '/merci',
   path: '/merci',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NettoyageIleDeFranceRoute = NettoyageIleDeFranceRouteImport.update({
+  id: '/nettoyage-ile-de-france',
+  path: '/nettoyage-ile-de-france',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NettoyagePantinRoute = NettoyagePantinRouteImport.update({
+  id: '/nettoyage-pantin',
+  path: '/nettoyage-pantin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NettoyageParisRoute = NettoyageParisRouteImport.update({
+  id: '/nettoyage-paris',
+  path: '/nettoyage-paris',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -97,6 +115,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/merci': typeof MerciRoute
+  '/nettoyage-ile-de-france': typeof NettoyageIleDeFranceRoute
+  '/nettoyage-pantin': typeof NettoyagePantinRoute
+  '/nettoyage-paris': typeof NettoyageParisRoute
   '/reset-password': typeof ResetPasswordRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/app/pipeline': typeof AuthenticatedAppPipelineRoute
@@ -111,6 +132,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/merci': typeof MerciRoute
+  '/nettoyage-ile-de-france': typeof NettoyageIleDeFranceRoute
+  '/nettoyage-pantin': typeof NettoyagePantinRoute
+  '/nettoyage-paris': typeof NettoyageParisRoute
   '/reset-password': typeof ResetPasswordRoute
   '/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/app/prospection': typeof AuthenticatedAppProspectionRoute
@@ -126,6 +150,9 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/merci': typeof MerciRoute
+  '/nettoyage-ile-de-france': typeof NettoyageIleDeFranceRoute
+  '/nettoyage-pantin': typeof NettoyagePantinRoute
+  '/nettoyage-paris': typeof NettoyageParisRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/app/pipeline': typeof AuthenticatedAppPipelineRoute
@@ -142,6 +169,9 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/merci'
+    | '/nettoyage-ile-de-france'
+    | '/nettoyage-pantin'
+    | '/nettoyage-paris'
     | '/reset-password'
     | '/app'
     | '/app/pipeline'
@@ -156,6 +186,9 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/merci'
+    | '/nettoyage-ile-de-france'
+    | '/nettoyage-pantin'
+    | '/nettoyage-paris'
     | '/reset-password'
     | '/app/pipeline'
     | '/app/prospection'
@@ -170,6 +203,9 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/merci'
+    | '/nettoyage-ile-de-france'
+    | '/nettoyage-pantin'
+    | '/nettoyage-paris'
     | '/reset-password'
     | '/_authenticated/app'
     | '/_authenticated/app/pipeline'
@@ -186,6 +222,9 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   MerciRoute: typeof MerciRoute
+  NettoyageIleDeFranceRoute: typeof NettoyageIleDeFranceRoute
+  NettoyagePantinRoute: typeof NettoyagePantinRoute
+  NettoyageParisRoute: typeof NettoyageParisRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
@@ -218,6 +257,27 @@ declare module '@tanstack/react-router' {
       path: '/merci'
       fullPath: '/merci'
       preLoaderRoute: typeof MerciRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nettoyage-ile-de-france': {
+      id: '/nettoyage-ile-de-france'
+      path: '/nettoyage-ile-de-france'
+      fullPath: '/nettoyage-ile-de-france'
+      preLoaderRoute: typeof NettoyageIleDeFranceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nettoyage-pantin': {
+      id: '/nettoyage-pantin'
+      path: '/nettoyage-pantin'
+      fullPath: '/nettoyage-pantin'
+      preLoaderRoute: typeof NettoyagePantinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nettoyage-paris': {
+      id: '/nettoyage-paris'
+      path: '/nettoyage-paris'
+      fullPath: '/nettoyage-paris'
+      preLoaderRoute: typeof NettoyageParisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -323,6 +383,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   MerciRoute: MerciRoute,
+  NettoyageIleDeFranceRoute: NettoyageIleDeFranceRoute,
+  NettoyagePantinRoute: NettoyagePantinRoute,
+  NettoyageParisRoute: NettoyageParisRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
