@@ -15,3 +15,7 @@
 - [x] Bouton « Scanner leur site » sur la fiche prospect (affiche tous les emails trouvés)
 - [x] Message de premier contact préparé automatiquement dès la recherche (envoi après relecture)
 - [x] Test complet validé : recherche → message préparé → email envoyé → statut « Contacté »
+- [x] Référencement local : pages Nettoyage Pantin / Paris / Île-de-France, données structurées, plan du site
+- [ ] Créer / compléter la fiche Google Business Profile et la fiche Pages Jaunes (à faire par le gérant)
+- [x] Prospection Paris + Île-de-France lancée (Paris 11e, Boulogne, Montreuil, Saint-Denis) + test d'envoi validé
+
