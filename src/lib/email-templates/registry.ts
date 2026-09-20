@@ -1,7 +1,9 @@
 import type { ComponentType } from 'react'
 import { template as newRequestOwner } from './new-request-owner'
+import { template as prospectContactedOwner } from './prospect-contacted-owner'
 import { template as prospectOutreach } from './prospect-outreach'
 import { template as requestConfirmation } from './request-confirmation'
+
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -20,4 +22,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'new-request-owner': newRequestOwner,
   'request-confirmation': requestConfirmation,
   'prospect-outreach': prospectOutreach,
+  'prospect-contacted-owner': prospectContactedOwner,
 }
+

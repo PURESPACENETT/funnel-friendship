@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 
 export const BUSINESS = {
   name: "PURE SPACE NETT",
-  phone: "+33 6 00 00 00 00",
+  phone: "07 59 48 30 21",
+  phoneE164: "+33759483021",
+
   email: "contact@purespacenett.com",
   website: "https://www.purespacenett.com",
   street: "Le Pré-Saint-Gervais",
