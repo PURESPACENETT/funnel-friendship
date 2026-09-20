@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as MerciRouteImport } from './routes/merci'
+import { Route as NettoyageDeBureauxRouteImport } from './routes/nettoyage-de-bureaux'
 import { Route as NettoyageIleDeFranceRouteImport } from './routes/nettoyage-ile-de-france'
 import { Route as NettoyagePantinRouteImport } from './routes/nettoyage-pantin'
 import { Route as NettoyageParisRouteImport } from './routes/nettoyage-paris'
@@ -44,6 +45,11 @@ const AuthRoute = AuthRouteImport.update({
 const MerciRoute = MerciRouteImport.update({
   id: '/merci',
   path: '/merci',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NettoyageDeBureauxRoute = NettoyageDeBureauxRouteImport.update({
+  id: '/nettoyage-de-bureaux',
+  path: '/nettoyage-de-bureaux',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NettoyageIleDeFranceRoute = NettoyageIleDeFranceRouteImport.update({
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/merci': typeof MerciRoute
+  '/nettoyage-de-bureaux': typeof NettoyageDeBureauxRoute
   '/nettoyage-ile-de-france': typeof NettoyageIleDeFranceRoute
   '/nettoyage-pantin': typeof NettoyagePantinRoute
   '/nettoyage-paris': typeof NettoyageParisRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/merci': typeof MerciRoute
+  '/nettoyage-de-bureaux': typeof NettoyageDeBureauxRoute
   '/nettoyage-ile-de-france': typeof NettoyageIleDeFranceRoute
   '/nettoyage-pantin': typeof NettoyagePantinRoute
   '/nettoyage-paris': typeof NettoyageParisRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/merci': typeof MerciRoute
+  '/nettoyage-de-bureaux': typeof NettoyageDeBureauxRoute
   '/nettoyage-ile-de-france': typeof NettoyageIleDeFranceRoute
   '/nettoyage-pantin': typeof NettoyagePantinRoute
   '/nettoyage-paris': typeof NettoyageParisRoute
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/merci'
+    | '/nettoyage-de-bureaux'
     | '/nettoyage-ile-de-france'
     | '/nettoyage-pantin'
     | '/nettoyage-paris'
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/merci'
+    | '/nettoyage-de-bureaux'
     | '/nettoyage-ile-de-france'
     | '/nettoyage-pantin'
     | '/nettoyage-paris'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/merci'
+    | '/nettoyage-de-bureaux'
     | '/nettoyage-ile-de-france'
     | '/nettoyage-pantin'
     | '/nettoyage-paris'
@@ -235,6 +247,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   MerciRoute: typeof MerciRoute
+  NettoyageDeBureauxRoute: typeof NettoyageDeBureauxRoute
   NettoyageIleDeFranceRoute: typeof NettoyageIleDeFranceRoute
   NettoyagePantinRoute: typeof NettoyagePantinRoute
   NettoyageParisRoute: typeof NettoyageParisRoute
@@ -271,6 +284,13 @@ declare module '@tanstack/react-router' {
       path: '/merci'
       fullPath: '/merci'
       preLoaderRoute: typeof MerciRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nettoyage-de-bureaux': {
+      id: '/nettoyage-de-bureaux'
+      path: '/nettoyage-de-bureaux'
+      fullPath: '/nettoyage-de-bureaux'
+      preLoaderRoute: typeof NettoyageDeBureauxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/nettoyage-ile-de-france': {
@@ -404,6 +424,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   MerciRoute: MerciRoute,
+  NettoyageDeBureauxRoute: NettoyageDeBureauxRoute,
   NettoyageIleDeFranceRoute: NettoyageIleDeFranceRoute,
   NettoyagePantinRoute: NettoyagePantinRoute,
   NettoyageParisRoute: NettoyageParisRoute,
