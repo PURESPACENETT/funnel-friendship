@@ -16,7 +16,8 @@
 - [x] Message de premier contact préparé automatiquement dès la recherche (envoi après relecture)
 - [x] Test complet validé : recherche → message préparé → email envoyé → statut « Contacté »
 - [x] Référencement local : pages Nettoyage Pantin / Paris / Île-de-France, données structurées, plan du site
-- [ ] Créer / compléter la fiche Google Business Profile et la fiche Pages Jaunes (à faire par le gérant)
+- [ ] Compléter la fiche Google Business Profile existante (catégorie, téléphone, horaires, page Pantin et logo — validation par le gérant) et créer / compléter la fiche Pages Jaunes
+- [x] Aligner le site sur la fiche Google existante : 2 rue Chevreul, horaires 7 h–22 h, lien Maps et identité visuelle
 - [x] Prospection Paris + Île-de-France lancée (Paris 11e, Boulogne, Montreuil, Saint-Denis) + test d'envoi validé
 - [x] Numéro de téléphone réel (07 59 48 30 21) sur les pages publiques
 - [x] Prospection automatique du lundi au vendredi à 9h (Paris) : recherche, envoi des premiers messages, alerte email à chaque fiche passée en « Contacté »

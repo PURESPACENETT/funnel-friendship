@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Building2, MapPin, Phone, ShieldCheck, Star } from "lucide-react";
+import { ArrowRight, Building2, ExternalLink, MapPin, Phone, ShieldCheck, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -10,7 +10,8 @@ export const BUSINESS = {
 
   email: "contact@purespacenett.com",
   website: "https://www.purespacenett.com",
-  street: "Le Pré-Saint-Gervais",
+  googleMapsUrl: "https://maps.app.goo.gl/tQfk5XU5CuWB8G1s5",
+  street: "2 rue Chevreul",
   city: "Le Pré-Saint-Gervais",
   postalCode: "93310",
   latitude: 48.8869,
@@ -42,7 +43,8 @@ export function localBusinessJsonLd(props: LocalPageProps, path: string) {
     url: `https://funnel-friendship.lovable.app${path}`,
     telephone: BUSINESS.phoneE164,
     email: BUSINESS.email,
-    sameAs: [BUSINESS.website],
+    sameAs: [BUSINESS.website, BUSINESS.googleMapsUrl],
+    hasMap: BUSINESS.googleMapsUrl,
     address: {
       "@type": "PostalAddress",
       streetAddress: BUSINESS.street,
@@ -62,7 +64,7 @@ export function localBusinessJsonLd(props: LocalPageProps, path: string) {
         "@type": "OpeningHoursSpecification",
         dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
         opens: "07:00",
-        closes: "20:00",
+        closes: "22:00",
       },
     ],
     mainEntityOfPage: {
@@ -108,6 +110,11 @@ export function LocalSeoPage(props: LocalPageProps) {
           <Button variant="outline" asChild>
             <a href={`tel:${BUSINESS.phoneE164}`}>
               <Phone className="size-4" /> Nous appeler
+            </a>
+          </Button>
+          <Button variant="outline" asChild>
+            <a href={BUSINESS.googleMapsUrl} target="_blank" rel="noreferrer">
+              <ExternalLink className="size-4" /> Voir notre fiche Google
             </a>
           </Button>
         </div>
