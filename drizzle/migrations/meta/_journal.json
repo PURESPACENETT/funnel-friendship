@@ -43,6 +43,13 @@
       "when": 1789826596534,
       "tag": "0005_prospect_map_and_contacts",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789874146278,
+      "tag": "0006_harden_function_execute_and_public_quote_insert",
+      "breakpoints": true
     }
   ]
 }
