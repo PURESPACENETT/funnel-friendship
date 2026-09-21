@@ -57,6 +57,13 @@
       "when": 1789954094974,
       "tag": "0007_harden_role_authorization",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789954106253,
+      "tag": "0008_make_role_write_denials_restrictive",
+      "breakpoints": true
     }
   ]
 }
