@@ -265,6 +265,130 @@ function LinkedInPage() {
           ))}
         </div>
       </section>
+
+      <section className="rounded-xl border border-border bg-card p-5">
+        <h2 className="text-base text-foreground">4. Suivi des réponses</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Ajoutez la personne dès l'envoi de l'invitation, puis faites avancer son statut. Au
+          passage en « Contacté », vous recevez une alerte par email.
+        </p>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {LINKEDIN_STATUSES.map((status) => (
+            <span
+              key={status.value}
+              className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
+            >
+              {status.label} : {counts[status.value] ?? 0}
+            </span>
+          ))}
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+          <div>
+            <Label htmlFor="track-name">Nom du contact</Label>
+            <Input
+              id="track-name"
+              value={trackName}
+              onChange={(event) => setTrackName(event.target.value)}
+              placeholder="Claire Duval"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label htmlFor="track-url">Lien LinkedIn (optionnel)</Label>
+            <Input
+              id="track-url"
+              value={trackUrl}
+              onChange={(event) => setTrackUrl(event.target.value)}
+              placeholder="https://www.linkedin.com/in/…"
+              className="mt-1"
+            />
+          </div>
+          <div className="flex items-end">
+            <Button
+              disabled={trackName.trim().length < 2 || addMutation.isPending}
+              onClick={() =>
+                addMutation.mutate({
+                  fullName: trackName.trim(),
+                  company: entreprise.trim() || undefined,
+                  city: ville.trim() || undefined,
+                  roleKey: role.value,
+                  linkedinUrl: trackUrl.trim() || undefined,
+                })
+              }
+            >
+              Ajouter au suivi
+            </Button>
+          </div>
+        </div>
+
+        <div className="mt-5 space-y-3">
+          {contactsQuery.isLoading ? (
+            <p className="text-sm text-muted-foreground">Chargement…</p>
+          ) : contacts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Aucun contact suivi pour l'instant. Ajoutez le premier ci-dessus.
+            </p>
+          ) : (
+            contacts.map((contact) => (
+              <article key={contact.id} className="rounded-lg border border-border p-4">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <p className="text-sm text-foreground">
+                      {contact.linkedin_url ? (
+                        <a
+                          href={contact.linkedin_url}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="underline underline-offset-2"
+                        >
+                          {contact.full_name}
+                        </a>
+                      ) : (
+                        contact.full_name
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {[contact.company, contact.city].filter(Boolean).join(" — ") || "—"}
+                      {contact.contacted_at
+                        ? ` · contacté le ${new Date(contact.contacted_at).toLocaleDateString("fr-FR")}`
+                        : ""}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteMutation.mutate(contact.id)}
+                    aria-label="Retirer du suivi"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {LINKEDIN_STATUSES.map((status) => (
+                    <button
+                      key={status.value}
+                      type="button"
+                      disabled={statusMutation.isPending || contact.status === status.value}
+                      onClick={() =>
+                        statusMutation.mutate({ id: contact.id, status: status.value })
+                      }
+                      className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                        contact.status === status.value
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {status.label}
+                    </button>
+                  ))}
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+      </section>
     </div>
   );
 }
