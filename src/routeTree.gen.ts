@@ -20,6 +20,7 @@ import { Route as NettoyageParisRouteImport } from './routes/nettoyage-paris'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppLinkedinRouteImport } from './routes/_authenticated/app.linkedin'
 import { Route as AuthenticatedAppPipelineRouteImport } from './routes/_authenticated/app.pipeline'
 import { Route as AuthenticatedAppProspectionRouteImport } from './routes/_authenticated/app.prospection'
 import { Route as AuthenticatedAppTarifsRouteImport } from './routes/_authenticated/app.tarifs'
@@ -82,6 +83,12 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppLinkedinRoute =
+  AuthenticatedAppLinkedinRouteImport.update({
+    id: '/linkedin',
+    path: '/linkedin',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppPipelineRoute =
   AuthenticatedAppPipelineRouteImport.update({
     id: '/pipeline',
@@ -134,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/nettoyage-paris': typeof NettoyageParisRoute
   '/reset-password': typeof ResetPasswordRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/app/linkedin': typeof AuthenticatedAppLinkedinRoute
   '/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/app/prospection': typeof AuthenticatedAppProspectionRoute
   '/app/tarifs': typeof AuthenticatedAppTarifsRoute
@@ -152,6 +160,7 @@ export interface FileRoutesByTo {
   '/nettoyage-pantin': typeof NettoyagePantinRoute
   '/nettoyage-paris': typeof NettoyageParisRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/app/linkedin': typeof AuthenticatedAppLinkedinRoute
   '/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/app/prospection': typeof AuthenticatedAppProspectionRoute
   '/app/tarifs': typeof AuthenticatedAppTarifsRoute
@@ -173,6 +182,7 @@ export interface FileRoutesById {
   '/nettoyage-paris': typeof NettoyageParisRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/app/linkedin': typeof AuthenticatedAppLinkedinRoute
   '/_authenticated/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/_authenticated/app/prospection': typeof AuthenticatedAppProspectionRoute
   '/_authenticated/app/tarifs': typeof AuthenticatedAppTarifsRoute
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/nettoyage-paris'
     | '/reset-password'
     | '/app'
+    | '/app/linkedin'
     | '/app/pipeline'
     | '/app/prospection'
     | '/app/tarifs'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/nettoyage-pantin'
     | '/nettoyage-paris'
     | '/reset-password'
+    | '/app/linkedin'
     | '/app/pipeline'
     | '/app/prospection'
     | '/app/tarifs'
@@ -232,6 +244,7 @@ export interface FileRouteTypes {
     | '/nettoyage-paris'
     | '/reset-password'
     | '/_authenticated/app'
+    | '/_authenticated/app/linkedin'
     | '/_authenticated/app/pipeline'
     | '/_authenticated/app/prospection'
     | '/_authenticated/app/tarifs'
@@ -335,6 +348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/linkedin': {
+      id: '/_authenticated/app/linkedin'
+      path: '/linkedin'
+      fullPath: '/app/linkedin'
+      preLoaderRoute: typeof AuthenticatedAppLinkedinRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/pipeline': {
       id: '/_authenticated/app/pipeline'
       path: '/pipeline'
@@ -388,6 +408,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppLinkedinRoute: typeof AuthenticatedAppLinkedinRoute
   AuthenticatedAppPipelineRoute: typeof AuthenticatedAppPipelineRoute
   AuthenticatedAppProspectionRoute: typeof AuthenticatedAppProspectionRoute
   AuthenticatedAppTarifsRoute: typeof AuthenticatedAppTarifsRoute
@@ -397,6 +418,7 @@ interface AuthenticatedAppRouteChildren {
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppLinkedinRoute: AuthenticatedAppLinkedinRoute,
   AuthenticatedAppPipelineRoute: AuthenticatedAppPipelineRoute,
   AuthenticatedAppProspectionRoute: AuthenticatedAppProspectionRoute,
   AuthenticatedAppTarifsRoute: AuthenticatedAppTarifsRoute,
