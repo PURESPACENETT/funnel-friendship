@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      linkedin_contacts: {
+        Row: {
+          city: string | null
+          company: string | null
+          contacted_at: string | null
+          created_at: string
+          created_by: string | null
+          full_name: string
+          id: string
+          linkedin_url: string | null
+          notes: string | null
+          role_key: string | null
+          status: Database["public"]["Enums"]["prospect_status"]
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          company?: string | null
+          contacted_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          full_name: string
+          id?: string
+          linkedin_url?: string | null
+          notes?: string | null
+          role_key?: string | null
+          status?: Database["public"]["Enums"]["prospect_status"]
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          company?: string | null
+          contacted_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          full_name?: string
+          id?: string
+          linkedin_url?: string | null
+          notes?: string | null
+          role_key?: string | null
+          status?: Database["public"]["Enums"]["prospect_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pricing_settings: {
         Row: {
           frequency_multipliers: Json
