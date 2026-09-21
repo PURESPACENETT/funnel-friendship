@@ -18,6 +18,10 @@ const statusEnum = z.enum([
   "ecarte",
 ]);
 
+function enforceAmazighSignature(value: string): string {
+  return value.replace(/\bAmine\b/gi, "Amazigh");
+}
+
 /** How many freshly found companies get their email + message prepared automatically. */
 const AUTO_PREPARE_LIMIT = 6;
 
@@ -68,6 +72,10 @@ async function autoPrepare(
           .join("\n") || null,
       }).catch(() => null);
 
+      const safeDraft = draft
+        ? { subject: draft.subject, body: enforceAmazighSignature(draft.body) }
+        : null;
+
       const { error } = await supabase
         .from("prospects")
         .update({
@@ -80,10 +88,10 @@ async function autoPrepare(
                 contact_linkedin: contact.linkedin,
               }
             : {}),
-          ...(draft
+          ...(safeDraft
             ? {
-                outreach_subject: draft.subject,
-                outreach_body: draft.body,
+                outreach_subject: safeDraft.subject,
+                outreach_body: safeDraft.body,
                 outreach_generated_at: new Date().toISOString(),
               }
             : {}),
@@ -98,7 +106,7 @@ async function autoPrepare(
         })
         .eq("id", row.id);
       if (error) throw new Error(error.message);
-      return Boolean(draft);
+      return Boolean(safeDraft);
     }),
   );
 
@@ -262,17 +270,22 @@ export const generateOutreach = createServerFn({ method: "POST" })
     });
     if (!draft) throw new Error("La rédaction automatique a échoué, réessayez.");
 
+    const safeDraft = {
+      subject: draft.subject,
+      body: enforceAmazighSignature(draft.body),
+    };
+
     const { error } = await context.supabase
       .from("prospects")
       .update({
-        outreach_subject: draft.subject,
-        outreach_body: draft.body,
+        outreach_subject: safeDraft.subject,
+        outreach_body: safeDraft.body,
         outreach_generated_at: new Date().toISOString(),
       })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
 
-    return draft;
+    return safeDraft;
   });
 
 export const saveOutreach = createServerFn({ method: "POST" })
@@ -281,7 +294,10 @@ export const saveOutreach = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("prospects")
-      .update({ outreach_subject: data.subject, outreach_body: data.body })
+      .update({
+        outreach_subject: data.subject,
+        outreach_body: enforceAmazighSignature(data.body),
+      })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -303,11 +319,20 @@ export const sendOutreach = createServerFn({ method: "POST" })
     if (!row.outreach_subject || !row.outreach_body)
       throw new Error("Préparez d'abord le message avant l'envoi.");
 
+    const safeBody = enforceAmazighSignature(row.outreach_body);
+    if (safeBody !== row.outreach_body) {
+      const { error: signatureError } = await context.supabase
+        .from("prospects")
+        .update({ outreach_body: safeBody })
+        .eq("id", data.id);
+      if (signatureError) throw new Error(signatureError.message);
+    }
+
     const { sendTemplateEmail } = await import("./email-templates/send-email");
     const result = await sendTemplateEmail("prospect-outreach", row.email, {
       templateData: {
         subject: row.outreach_subject,
-        body: row.outreach_body,
+        body: safeBody,
         companyName: row.company_name,
       },
       idempotencyKey: `prospect-outreach-${row.id}-${row.outreach_generated_at ?? "manual"}`,

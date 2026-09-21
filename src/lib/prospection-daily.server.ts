@@ -49,6 +49,10 @@ const PLAN: { sector: string; area: string; radiusKm: number }[][] = [
 const PREPARE_LIMIT = 6;
 const SEND_LIMIT = 8;
 
+function enforceAmazighSignature(value: string): string {
+  return value.replace(/\bAmine\b/gi, "Amazigh");
+}
+
 export interface DailyProspectionResult {
   found: number;
   created: number;
@@ -144,15 +148,19 @@ async function prepareRows(rows: any[]): Promise<number> {
         notes: row.notes,
       }).catch(() => null);
 
+      const safeDraft = draft
+        ? { subject: draft.subject, body: enforceAmazighSignature(draft.body) }
+        : null;
+
       await supabaseAdmin
         .from("prospects")
         .update({
           ...(emails[0] ? { email: emails[0] } : {}),
           found_emails: emails,
-          ...(draft
+          ...(safeDraft
             ? {
-                outreach_subject: draft.subject,
-                outreach_body: draft.body,
+                outreach_subject: safeDraft.subject,
+                outreach_body: safeDraft.body,
                 outreach_generated_at: new Date().toISOString(),
               }
             : {}),
@@ -167,7 +175,7 @@ async function prepareRows(rows: any[]): Promise<number> {
         })
         .eq("id", row.id);
 
-      if (draft) prepared += 1;
+      if (safeDraft) prepared += 1;
     } catch (error) {
       console.error("daily prospection prepare failed", row?.id, error);
     }
@@ -193,10 +201,19 @@ async function sendPreparedOutreach() {
 
   for (const row of ready ?? []) {
     try {
+      const safeBody = enforceAmazighSignature(row.outreach_body!);
+      if (safeBody !== row.outreach_body) {
+        const { error: signatureError } = await supabaseAdmin
+          .from("prospects")
+          .update({ outreach_body: safeBody })
+          .eq("id", row.id);
+        if (signatureError) throw new Error(signatureError.message);
+      }
+
       const result = await sendTemplateEmail("prospect-outreach", row.email!, {
         templateData: {
           subject: row.outreach_subject,
-          body: row.outreach_body,
+          body: safeBody,
           companyName: row.company_name,
         },
         idempotencyKey: `prospect-outreach-${row.id}-${row.outreach_generated_at ?? "auto"}`,
