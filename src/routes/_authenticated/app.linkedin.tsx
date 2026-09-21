@@ -67,6 +67,67 @@ function LinkedInPage() {
     [prenom, entreprise, ville, role],
   );
 
+  const queryClient = useQueryClient();
+  const fetchContacts = useServerFn(listLinkedInContacts);
+  const addContact = useServerFn(addLinkedInContact);
+  const setStatus = useServerFn(updateLinkedInContactStatus);
+  const removeContact = useServerFn(deleteLinkedInContact);
+
+  const contactsQuery = useQuery({
+    queryKey: ["linkedin-contacts"],
+    queryFn: () => fetchContacts(),
+  });
+  const contacts = contactsQuery.data?.contacts ?? [];
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["linkedin-contacts"] });
+
+  const addMutation = useMutation({
+    mutationFn: (vars: {
+      fullName: string;
+      company?: string;
+      city?: string;
+      roleKey?: string;
+      linkedinUrl?: string;
+    }) => addContact({ data: vars }),
+    onSuccess: () => {
+      toast.success("Contact ajouté au suivi");
+      setTrackName("");
+      setTrackUrl("");
+      invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: (vars: { id: string; status: LinkedInStatus }) => setStatus({ data: vars }),
+    onSuccess: (result) => {
+      toast.success(
+        result.alerted ? "Statut mis à jour — alerte email envoyée" : "Statut mis à jour",
+      );
+      invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => removeContact({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Contact retiré du suivi");
+      invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const [trackName, setTrackName] = useState("");
+  const [trackUrl, setTrackUrl] = useState("");
+
+  const counts = useMemo(() => {
+    const base: Record<string, number> = {};
+    for (const status of LINKEDIN_STATUSES) base[status.value] = 0;
+    for (const contact of contacts) base[contact.status] = (base[contact.status] ?? 0) + 1;
+    return base;
+  }, [contacts]);
+
   const copy = async (text: string, label: string) => {
     try {
       await navigator.clipboard.writeText(text);
