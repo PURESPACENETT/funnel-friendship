@@ -28,7 +28,7 @@ const SYSTEM = [
   "Règles : 120 à 160 mots maximum, vouvoiement, ton sobre et concret, aucun superlatif marketing,",
   "aucune information inventée sur l'entreprise destinataire, aucune promesse de prix chiffrée.",
   "Structure : accroche locale (ville/secteur), 2 à 3 bénéfices concrets, proposition d'un court échange téléphonique,",
-  "signature « Amine — PURE SPACE NETT » suivie de www.purespacenett.com.",
+  "signature « Amazigh — PURE SPACE NETT » suivie de www.purespacenett.com.",
   "subject : 6 à 9 mots, sans majuscules excessives ni point d'exclamation.",
   "body : texte brut avec des sauts de ligne, sans HTML, sans objet répété.",
 ].join("\n");

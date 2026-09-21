@@ -67,6 +67,6 @@ export const template: TemplateEntry = {
     subject: 'Entretien de vos bureaux à Pantin',
     companyName: 'Cabinet Duval',
     body:
-      "Bonjour,\n\nJe suis Amine, de PURE SPACE NETT, entreprise de nettoyage basée au Pré-Saint-Gervais.\n\nNous assurons l'entretien régulier de bureaux et de locaux professionnels à Pantin et dans tout le 93 : passages en soirée, équipes fixes, contrôle qualité.\n\nSeriez-vous disponible pour un échange de dix minutes cette semaine ?\n\nAmine — PURE SPACE NETT\nwww.purespacenett.com",
+      "Bonjour,\n\nJe suis Amazigh, de PURE SPACE NETT, entreprise de nettoyage basée au Pré-Saint-Gervais.\n\nNous assurons l'entretien régulier de bureaux et de locaux professionnels à Pantin et dans tout le 93 : passages en soirée, équipes fixes, contrôle qualité.\n\nSeriez-vous disponible pour un échange de dix minutes cette semaine ?\n\nAmazigh — PURE SPACE NETT\nwww.purespacenett.com",
   },
 }
