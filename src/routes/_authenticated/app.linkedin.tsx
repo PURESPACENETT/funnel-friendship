@@ -84,10 +84,10 @@ function LinkedInPage() {
   const addMutation = useMutation({
     mutationFn: (vars: {
       fullName: string;
-      company?: string;
-      city?: string;
-      roleKey?: string;
-      linkedinUrl?: string;
+      company?: string | undefined;
+      city?: string | undefined;
+      roleKey?: string | undefined;
+      linkedinUrl?: string | undefined;
     }) => addContact({ data: vars }),
     onSuccess: () => {
       toast.success("Contact ajouté au suivi");
