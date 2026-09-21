@@ -93,6 +93,10 @@ interface ProspectRow {
   found_emails: string[] | null;
 }
 
+function enforceAmazighSignature(value: string): string {
+  return value.replace(/\bAmine\b/gi, "Amazigh");
+}
+
 function ProspectingPage() {
   const queryClient = useQueryClient();
   const fetchProspects = useServerFn(listProspects);
@@ -197,7 +201,7 @@ function ProspectingPage() {
   const select = (prospect: ProspectRow) => {
     setSelectedId(prospect.id);
     setSubject(prospect.outreach_subject ?? "");
-    setBody(prospect.outreach_body ?? "");
+    setBody(enforceAmazighSignature(prospect.outreach_body ?? ""));
     setEmail(prospect.email ?? "");
   };
 
@@ -244,7 +248,8 @@ function ProspectingPage() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: (id: string) => runSave({ data: { id, subject, body } }),
+    mutationFn: (id: string) =>
+      runSave({ data: { id, subject, body: enforceAmazighSignature(body) } }),
     onSuccess: () => {
       toast.success("Message enregistré.");
       void refresh();
@@ -257,7 +262,7 @@ function ProspectingPage() {
       // Persist what is on screen (address + message) so nothing typed is lost on send.
       if (email) await runPatch({ data: { id, email } });
       if (subject.length >= 3 && body.length >= 20) {
-        await runSave({ data: { id, subject, body } });
+        await runSave({ data: { id, subject, body: enforceAmazighSignature(body) } });
       }
       return runSend({ data: { id } });
     },
@@ -707,8 +712,8 @@ function ProspectingPage() {
                   <Label>Message</Label>
                   <Textarea
                     rows={10}
-                    value={body}
-                    onChange={(event) => setBody(event.target.value)}
+                    value={enforceAmazighSignature(body)}
+                    onChange={(event) => setBody(enforceAmazighSignature(event.target.value))}
                   />
                 </div>
 
