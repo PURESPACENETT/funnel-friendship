@@ -64,6 +64,13 @@
       "when": 1789954106253,
       "tag": "0008_make_role_write_denials_restrictive",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1789999439805,
+      "tag": "0009_create_linkedin_contacts",
+      "breakpoints": true
     }
   ]
 }
