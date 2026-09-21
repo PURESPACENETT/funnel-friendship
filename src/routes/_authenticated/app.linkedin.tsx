@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Copy, ExternalLink } from "lucide-react";
+import { Copy, ExternalLink, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +14,22 @@ import {
   LINKEDIN_TEMPLATES,
   linkedInSearchUrl,
 } from "@/lib/linkedin-outreach";
+import {
+  addLinkedInContact,
+  deleteLinkedInContact,
+  listLinkedInContacts,
+  updateLinkedInContactStatus,
+} from "@/lib/linkedin.functions";
+
+const LINKEDIN_STATUSES = [
+  { value: "a_contacter", label: "À contacter" },
+  { value: "contacte", label: "Contacté" },
+  { value: "interesse", label: "Intéressé" },
+  { value: "converti", label: "Converti" },
+  { value: "ecarte", label: "Écarté" },
+] as const;
+
+type LinkedInStatus = (typeof LINKEDIN_STATUSES)[number]["value"];
 
 export const Route = createFileRoute("/_authenticated/app/linkedin")({
   head: () => ({
