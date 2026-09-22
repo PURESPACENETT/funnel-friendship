@@ -56,6 +56,7 @@ export async function notifyNewRequest(payload: NewRequestPayload): Promise<void
         requestId: id,
       },
       idempotencyKey: `new-request-owner-${id}`,
+      replyTo: "contact@purespacenett.com",
     });
   } catch (error) {
     console.error("Owner alert email failed", id, error);
