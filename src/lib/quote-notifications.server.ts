@@ -32,6 +32,7 @@ export async function notifyNewRequest(payload: NewRequestPayload): Promise<void
         city: input.city,
       },
       idempotencyKey: `request-confirmation-${id}`,
+      replyTo: "contact@purespacenett.com",
     });
   } catch (error) {
     console.error("Prospect confirmation email failed", id, error);
