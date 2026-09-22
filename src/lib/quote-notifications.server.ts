@@ -32,6 +32,7 @@ export async function notifyNewRequest(payload: NewRequestPayload): Promise<void
         city: input.city,
       },
       idempotencyKey: `request-confirmation-${id}`,
+      replyTo: "contact@purespacenett.com",
     });
   } catch (error) {
     console.error("Prospect confirmation email failed", id, error);
@@ -55,6 +56,7 @@ export async function notifyNewRequest(payload: NewRequestPayload): Promise<void
         requestId: id,
       },
       idempotencyKey: `new-request-owner-${id}`,
+      replyTo: "contact@purespacenett.com",
     });
   } catch (error) {
     console.error("Owner alert email failed", id, error);
