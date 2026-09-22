@@ -217,6 +217,7 @@ async function sendPreparedOutreach() {
           companyName: row.company_name,
         },
         idempotencyKey: `prospect-outreach-${row.id}-${row.outreach_generated_at ?? "auto"}`,
+        replyTo: "contact@purespacenett.com",
       });
       if (!result.sent) continue;
 

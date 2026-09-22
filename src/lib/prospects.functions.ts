@@ -336,6 +336,7 @@ export const sendOutreach = createServerFn({ method: "POST" })
         companyName: row.company_name,
       },
       idempotencyKey: `prospect-outreach-${row.id}-${row.outreach_generated_at ?? "manual"}`,
+      replyTo: "contact@purespacenett.com",
     });
 
     if (!result.sent) {
