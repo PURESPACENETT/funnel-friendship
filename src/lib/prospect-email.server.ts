@@ -1,6 +1,7 @@
 /**
  * Finds contact details for a prospect.
- * Step 1 — reads the company's own website (contact / legal pages) for public addresses.
+ * Step 1 — reads the company's own website (home, contact, legal, team pages) for public addresses,
+ *          including mailto: links and obfuscated writings ("nom (at) domaine (point) fr").
  * Step 2 — asks Clay for the decision-maker's name and role at that company.
  */
 
@@ -9,10 +10,15 @@ const EMAIL_RE = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
 const BAD_FRAGMENTS = [
   "noreply",
   "no-reply",
+  "ne-pas-repondre",
   "example.com",
   "sentry",
   "wixpress",
   "wordpress",
+  "squarespace",
+  "shopify",
+  "cloudflare",
+  "googlemail.com/mail",
   "domain.com",
   "email.com",
   "votre-email",
@@ -26,6 +32,9 @@ const BAD_FRAGMENTS = [
   "monemail",
   "adresse@",
   "test@",
+  "exemple@",
+  "email@email",
+  "user@",
   // adresses juridiques / RGPD : ne jamais démarcher
   "dpo@",
   "rgpd@",
@@ -33,35 +42,120 @@ const BAD_FRAGMENTS = [
   "abuse@",
   "postmaster@",
   "webmaster@",
+  "hostmaster@",
 ];
 
-const BAD_SUFFIXES = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".css", ".js"];
+const BAD_SUFFIXES = [
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".webp",
+  ".svg",
+  ".css",
+  ".js",
+  ".json",
+  ".webp2",
+  ".ico",
+  ".pdf",
+  ".mp4",
+];
 
-const CONTACT_PATHS = ["", "/contact", "/contacts", "/nous-contacter", "/mentions-legales", "/a-propos"];
+/** Pages most likely to publish a real inbox, cheapest first. */
+const CONTACT_PATHS = [
+  "",
+  "/contact",
+  "/contacts",
+  "/contact.html",
+  "/contact-us",
+  "/nous-contacter",
+  "/nous-joindre",
+  "/demande-de-devis",
+  "/devis",
+  "/mentions-legales",
+  "/mentions-legales.html",
+  "/legal",
+  "/cgv",
+  "/politique-de-confidentialite",
+  "/a-propos",
+  "/qui-sommes-nous",
+  "/equipe",
+  "/notre-equipe",
+  "/impressum",
+];
+
+/** Rewrites the common ways a site hides an address from scrapers. */
+function deobfuscate(html: string): string {
+  return html
+    .replace(/&#(\d{1,4});/g, (_m, code: string) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-f]{2,4});/gi, (_m, code: string) => String.fromCharCode(parseInt(code, 16)))
+    .replace(/&commat;|&#64;|%40/gi, "@")
+    .replace(/\s*(?:\(|\[|\{)\s*(?:at|arobase|chez)\s*(?:\)|\]|\})\s*/gi, "@")
+    .replace(/\s+(?:at|arobase)\s+/gi, "@")
+    .replace(/\s*(?:\(|\[|\{)\s*(?:dot|point|punkt)\s*(?:\)|\]|\})\s*/gi, ".")
+    .replace(/\s+(?:dot|point)\s+/gi, ".");
+}
+
+/** Addresses written inside mailto: links are the most reliable signal on a page. */
+function mailtoCandidates(html: string): string[] {
+  const out: string[] = [];
+  const re = /mailto:([^"'?>\s]+)/gi;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(html)) !== null) {
+    const raw = decodeURIComponent(match[1] ?? "").trim().toLowerCase();
+    if (raw && EMAIL_RE.test(raw)) out.push(raw);
+    EMAIL_RE.lastIndex = 0;
+  }
+  return out;
+}
+
+function isUsable(email: string): boolean {
+  if (email.length > 120 || email.length < 6) return false;
+  if (BAD_FRAGMENTS.some((bad) => email.includes(bad))) return false;
+  if (BAD_SUFFIXES.some((bad) => email.endsWith(bad))) return false;
+  // Une adresse valide n'enchaîne pas les points ni ne finit par un chiffre de hash
+  if (email.includes("..") || email.startsWith(".") || email.includes("@.")) return false;
+  const tld = email.split(".").pop() ?? "";
+  if (tld.length < 2 || tld.length > 12) return false;
+  return true;
+}
 
 function cleanCandidates(html: string): string[] {
-  const found = html.match(EMAIL_RE) ?? [];
+  const readable = deobfuscate(html);
+  const found = [...mailtoCandidates(readable), ...(readable.match(EMAIL_RE) ?? [])];
   const seen = new Set<string>();
   const out: string[] = [];
   for (const raw of found) {
     const email = raw.toLowerCase().replace(/^[.\-_]+|[.\-_]+$/g, "");
     if (seen.has(email)) continue;
-    if (BAD_FRAGMENTS.some((bad) => email.includes(bad))) continue;
-    if (BAD_SUFFIXES.some((bad) => email.endsWith(bad))) continue;
-    if (email.length > 120) continue;
+    if (!isUsable(email)) continue;
     seen.add(email);
     out.push(email);
   }
   return out;
 }
 
-const PREFERRED = ["contact@", "info@", "accueil@", "bonjour@", "direction@", "hello@", "commercial@"];
+const PREFERRED = [
+  "contact@",
+  "info@",
+  "infos@",
+  "accueil@",
+  "bonjour@",
+  "hello@",
+  "direction@",
+  "commercial@",
+  "devis@",
+  "secretariat@",
+  "administratif@",
+  "gestion@",
+  "agence@",
+  "service@",
+];
 
-/** Ranks generic company inboxes first — they are the ones a cleaning offer should reach. */
+/** Ranks generic company inboxes on the company's own domain first. */
 function rank(candidates: string[], domain: string | null): string[] {
-  const sameDomain = domain
-    ? candidates.filter((email) => email.endsWith(`@${domain}`) || email.includes(domain))
-    : [];
+  const root = domain ? domain.split(".").slice(-2).join(".") : null;
+  const sameDomain = root ? candidates.filter((email) => email.endsWith(`@${domain}`) || email.endsWith(`.${root}`) || email.endsWith(`@${root}`)) : [];
   const rest = candidates.filter((email) => !sameDomain.includes(email));
   const ordered = [...sameDomain, ...rest];
   return ordered.sort((a, b) => {
@@ -90,7 +184,11 @@ async function fetchText(url: string): Promise<string> {
     const response = await fetch(url, {
       signal: controller.signal,
       redirect: "follow",
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; PureSpaceNettBot/1.0)" },
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+        "Accept-Language": "fr-FR,fr;q=0.9",
+      },
     });
     if (!response.ok) return "";
     const type = response.headers.get("content-type") ?? "";
@@ -103,24 +201,69 @@ async function fetchText(url: string): Promise<string> {
   }
 }
 
+/** Contact-ish internal links discovered on the homepage, so odd URL schemes are covered too. */
+function contactLinksFrom(html: string, origin: string): string[] {
+  const out: string[] = [];
+  const re = /href\s*=\s*["']([^"'#]+)["']/gi;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(html)) !== null && out.length < 6) {
+    const href = (match[1] ?? "").trim();
+    if (!href || href.startsWith("mailto:") || href.startsWith("tel:")) continue;
+    if (!/contact|joindre|devis|mentions|legal|equipe|propos|impressum/i.test(href)) continue;
+    try {
+      const url = new URL(href, origin);
+      if (url.origin !== origin) continue;
+      const clean = `${url.origin}${url.pathname}`;
+      if (!out.includes(clean)) out.push(clean);
+    } catch {
+      continue;
+    }
+  }
+  return out;
+}
+
 /** Scans the company website and returns every usable public address, best first. */
 export async function scanWebsiteForEmails(
   website: string | null | undefined,
 ): Promise<string[]> {
   const domain = domainOf(website);
   if (!domain) return [];
-  const base = `https://${domain}`;
+
+  // Certains sites ne répondent que sur www, d'autres uniquement sans.
+  const bases = [`https://${domain}`, `https://www.${domain}`];
+  let origin = bases[0]!;
+  let home = "";
+  for (const base of bases) {
+    home = await fetchText(base);
+    if (home) {
+      origin = base;
+      break;
+    }
+  }
 
   const collected: string[] = [];
-  for (const path of CONTACT_PATHS) {
-    const html = await fetchText(`${base}${path}`);
-    if (!html) continue;
-    for (const email of cleanCandidates(html)) {
-      if (!collected.includes(email)) collected.push(email);
+  const push = (emails: string[]) => {
+    for (const email of emails) if (!collected.includes(email)) collected.push(email);
+  };
+
+  push(cleanCandidates(home));
+
+  const discovered = home ? contactLinksFrom(home, origin) : [];
+  const targets = [
+    ...discovered,
+    ...CONTACT_PATHS.filter((path) => path).map((path) => `${origin}${path}`),
+  ].filter((url, index, all) => all.indexOf(url) === index);
+
+  // Par lots de 4 pour rester rapide sans matraquer le site.
+  for (let index = 0; index < targets.length && collected.length < 10; index += 4) {
+    const batch = targets.slice(index, index + 4);
+    const pages = await Promise.all(batch.map((url) => fetchText(url)));
+    for (const page of pages) {
+      if (page) push(cleanCandidates(page));
     }
-    if (collected.length >= 8) break;
   }
-  return rank(collected, domain).slice(0, 8);
+
+  return rank(collected, domain).slice(0, 10);
 }
 
 /** Convenience wrapper: the single best public address for this company. */
