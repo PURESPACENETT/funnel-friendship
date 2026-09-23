@@ -3,6 +3,10 @@ import { template as newRequestOwner } from './new-request-owner'
 import { template as prospectContactedOwner } from './prospect-contacted-owner'
 import { template as prospectOutreach } from './prospect-outreach'
 import { template as requestConfirmation } from './request-confirmation'
+import { template as requestFollowup } from './request-followup'
+import { template as prospectFollowup } from './prospect-followup'
+import { template as reviewRequest } from './review-request'
+import { template as dailyReport } from './daily-report'
 
 
 export interface TemplateEntry {
@@ -23,5 +27,9 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'request-confirmation': requestConfirmation,
   'prospect-outreach': prospectOutreach,
   'prospect-contacted-owner': prospectContactedOwner,
+  'request-followup': requestFollowup,
+  'prospect-followup': prospectFollowup,
+  'review-request': reviewRequest,
+  'daily-report': dailyReport,
 }
 
