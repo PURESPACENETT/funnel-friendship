@@ -18,6 +18,13 @@ export type ProspectStatus = (typeof PROSPECT_STATUSES)[number]["value"];
 
 /** Target segments for subcontracting: other cleaning companies that can delegate jobs. */
 export const SECTORS: Array<Option & { query: string }> = [
+  { value: "syndic de copropriété", label: "Syndics de copropriété", query: "syndic de copropriété" },
+  { value: "cabinet de gestion immobilière", label: "Gestion immobilière", query: "cabinet de gestion immobilière" },
+  { value: "bureaux et coworking", label: "Bureaux et coworking", query: "bureaux coworking" },
+  { value: "agence immobilière", label: "Agences immobilières", query: "agence immobilière" },
+  { value: "clinique et cabinet médical", label: "Cliniques et cabinets médicaux", query: "clinique cabinet médical" },
+  { value: "hôtel", label: "Hôtels", query: "hôtel" },
+  { value: "salle de sport", label: "Salles de sport", query: "salle de sport" },
   { value: "entreprise_nettoyage", label: "Entreprises de nettoyage", query: "entreprise de nettoyage" },
   { value: "societe_proprete", label: "Sociétés de propreté", query: "société de propreté" },
   { value: "nettoyage_bureaux", label: "Nettoyage de bureaux", query: "entreprise nettoyage bureaux" },
