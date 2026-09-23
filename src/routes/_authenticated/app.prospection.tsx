@@ -62,7 +62,7 @@ export const Route = createFileRoute("/_authenticated/app/prospection")({
   head: () => ({
     meta: [
       { title: "Prospection — PURE SPACE NETT" },
-      { name: "description", content: "Recherche de nouveaux clients et premiers contacts." },
+      { name: "description", content: "Prospection d'entreprises de nettoyage pour développer les contrats de sous-traitance." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -340,9 +340,9 @@ function ProspectingPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-2xl font-600 tracking-tight">Prospection</h1>
+        <h1 className="font-display text-2xl font-600 tracking-tight">Prospection sous-traitance</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Trouvez des entreprises près de vous. Le premier message est rédigé automatiquement —
+          Trouvez des entreprises de nettoyage à prospecter pour obtenir des chantiers en sous-traitance. Le premier message est rédigé automatiquement —
           vous le relisez et vous l'envoyez.
         </p>
       </div>
@@ -350,12 +350,12 @@ function ProspectingPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Rechercher des entreprises</CardTitle>
+            <CardTitle className="text-base">Prospecter des entreprises de nettoyage</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label>Type d'entreprise</Label>
+                <Label>Type d'entreprise de nettoyage</Label>
                 <Select value={sector} onValueChange={setSector}>
                   <SelectTrigger>
                     <SelectValue />
@@ -589,7 +589,7 @@ function ProspectingPage() {
           <CardContent className="space-y-4">
             {!selected ? (
               <p className="text-sm text-muted-foreground">
-                Sélectionnez un prospect pour relire son email.
+                Sélectionnez une entreprise de nettoyage pour préparer son email de prospection sous-traitance.
               </p>
             ) : (
               <>
