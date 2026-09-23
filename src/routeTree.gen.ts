@@ -155,7 +155,6 @@ export interface FileRoutesByFullPath {
   '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
   '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
   '/api/public/hooks/b2b-lead': typeof ApiPublicHooksB2bLeadRoute
-  '/api/public/hooks/b2b-lead': typeof ApiPublicHooksB2bLeadRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
@@ -175,6 +174,7 @@ export interface FileRoutesByTo {
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
   '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
+  '/api/public/hooks/b2b-lead': typeof ApiPublicHooksB2bLeadRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/app/demandes': typeof AuthenticatedAppDemandesIndexRoute
 }
@@ -197,6 +197,7 @@ export interface FileRoutesById {
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
   '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
+  '/api/public/hooks/b2b-lead': typeof ApiPublicHooksB2bLeadRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
@@ -461,6 +462,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ApiPublicHooksProspectionQuotidienneRoute:
     ApiPublicHooksProspectionQuotidienneRoute,
+  ApiPublicHooksB2bLeadRoute: ApiPublicHooksB2bLeadRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
