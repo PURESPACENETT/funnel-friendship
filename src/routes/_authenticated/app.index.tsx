@@ -52,12 +52,14 @@ function DashboardPage() {
   const won = requests.filter((r) => r.status === "gagne").length;
   const closed = won + requests.filter((r) => r.status === "perdu").length;
   const conversion = closed ? Math.round((won / closed) * 100) : 0;
+  const quotesSent = requests.filter((r) => r.status === "devis_envoye" || r.status === "gagne").length;
+  const lost = requests.filter((r) => r.status === "perdu").length;
   const b2b = requests.filter((r) => r.client_type !== "particulier").length;
   const subcontracting = requests.filter((r) => r.client_type === "sous_traitance").length;
   const directBusiness = requests.filter((r) => r.client_type === "entreprise").length;
   const prospects = prospectData?.prospects ?? [];
   const contactedProspects = prospects.filter((p) => p.outreach_sent_at).length;
-  const interestedProspects = prospects.filter((p) => p.status === "interesse" || p.status === "converti").length;
+  const interestedProspects = prospects.filter((p) => p.status === "interesse").length;
   const convertedProspects = prospects.filter((p) => p.status === "converti").length;
 
   const cutoff = Date.now() - FOLLOW_UP_DAYS * 86400000;
@@ -94,6 +96,13 @@ function DashboardPage() {
         <StatCard icon={TrendingUp} label="Prospects intéressés" value={String(interestedProspects)} />
         <StatCard icon={TrendingUp} label="Prospects convertis" value={String(convertedProspects)} />
         <StatCard icon={Euro} label="Pipeline sous-traitance" value={formatEuros(requests.filter((r) => r.client_type === "sous_traitance" && r.status !== "gagne" && r.status !== "perdu").reduce((sum, r) => sum + Number(r.estimate_max ?? 0), 0))} />
+      </section>
+
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard icon={Inbox} label="Devis envoyés" value={String(quotesSent)} />
+        <StatCard icon={TrendingUp} label="Gagnés" value={String(won)} />
+        <StatCard icon={AlertTriangle} label="Perdus" value={String(lost)} />
+        <StatCard icon={TrendingUp} label="Dossiers clôturés" value={String(closed)} />
       </section>
 
       <section>
