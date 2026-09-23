@@ -10,38 +10,38 @@ import { sendTemplateEmail } from "./email-templates/send-email";
 const PLAN: { sector: string; area: string; radiusKm: number }[][] = [
   // Sunday
   [
-    { sector: "syndic de copropriété", area: "Paris 11e", radiusKm: 4 },
-    { sector: "cabinet de gestion immobilière", area: "Paris 17e", radiusKm: 4 },
+    { sector: "entreprise_nettoyage", area: "Le Pré-Saint-Gervais", radiusKm: 8 },
+    { sector: "societe_proprete", area: "Pantin", radiusKm: 8 },
   ],
   // Monday
   [
-    { sector: "bureaux et coworking", area: "Paris 9e", radiusKm: 4 },
-    { sector: "agence immobilière", area: "Boulogne-Billancourt", radiusKm: 5 },
+    { sector: "entreprise_nettoyage", area: "Aubervilliers", radiusKm: 8 },
+    { sector: "nettoyage_bureaux", area: "Paris 19e", radiusKm: 6 },
   ],
   // Tuesday
   [
-    { sector: "syndic de copropriété", area: "Montreuil", radiusKm: 5 },
-    { sector: "résidence étudiante", area: "Saint-Denis", radiusKm: 6 },
+    { sector: "societe_proprete", area: "Montreuil", radiusKm: 8 },
+    { sector: "nettoyage_chantier", area: "Bobigny", radiusKm: 8 },
   ],
   // Wednesday
   [
-    { sector: "bureaux et coworking", area: "Levallois-Perret", radiusKm: 4 },
-    { sector: "cabinet de gestion immobilière", area: "Créteil", radiusKm: 6 },
+    { sector: "entreprise_nettoyage", area: "Les Lilas", radiusKm: 8 },
+    { sector: "nettoyage_industriel", area: "Saint-Denis", radiusKm: 8 },
   ],
   // Thursday
   [
-    { sector: "clinique et cabinet médical", area: "Paris 15e", radiusKm: 4 },
-    { sector: "syndic de copropriété", area: "Nanterre", radiusKm: 6 },
+    { sector: "societe_proprete", area: "Bagnolet", radiusKm: 8 },
+    { sector: "nettoyage_vitres", area: "Paris 20e", radiusKm: 6 },
   ],
   // Friday
   [
-    { sector: "hôtel", area: "Paris 10e", radiusKm: 4 },
-    { sector: "société de nettoyage", area: "Aubervilliers", radiusKm: 6 },
+    { sector: "entreprise_nettoyage", area: "Noisy-le-Sec", radiusKm: 8 },
+    { sector: "proprete_services", area: "Romainville", radiusKm: 8 },
   ],
   // Saturday
   [
-    { sector: "salle de sport", area: "Paris 12e", radiusKm: 4 },
-    { sector: "agence immobilière", area: "Versailles", radiusKm: 7 },
+    { sector: "nettoyage_bureaux", area: "Paris 11e", radiusKm: 6 },
+    { sector: "entreprise_nettoyage", area: "Saint-Ouen", radiusKm: 8 },
   ],
 ];
 
