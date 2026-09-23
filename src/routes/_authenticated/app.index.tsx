@@ -6,6 +6,7 @@ import { AlertTriangle, Euro, Inbox, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { listRequests } from "@/lib/quotes.functions";
+import { listProspects } from "@/lib/prospects.functions";
 import { STATUSES, formatEuros, labelOf, scoreLabel } from "@/lib/quotes-shared";
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -27,8 +28,13 @@ function DashboardPage() {
     queryKey: ["requests"],
     queryFn: () => fetchRequests(),
   });
+  const fetchProspects = useServerFn(listProspects);
+  const { data: prospectData, isLoading: prospectsLoading } = useQuery({
+    queryKey: ["prospects"],
+    queryFn: () => fetchProspects(),
+  });
 
-  if (isLoading) {
+  if (isLoading || prospectsLoading) {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
@@ -47,6 +53,12 @@ function DashboardPage() {
   const closed = won + requests.filter((r) => r.status === "perdu").length;
   const conversion = closed ? Math.round((won / closed) * 100) : 0;
   const b2b = requests.filter((r) => r.client_type !== "particulier").length;
+  const subcontracting = requests.filter((r) => r.client_type === "sous_traitance").length;
+  const directBusiness = requests.filter((r) => r.client_type === "entreprise").length;
+  const prospects = prospectData?.prospects ?? [];
+  const contactedProspects = prospects.filter((p) => p.outreach_sent_at).length;
+  const interestedProspects = prospects.filter((p) => p.status === "interesse" || p.status === "converti").length;
+  const convertedProspects = prospects.filter((p) => p.status === "converti").length;
 
   const cutoff = Date.now() - FOLLOW_UP_DAYS * 86400000;
   const followUp = requests.filter(
@@ -62,9 +74,7 @@ function DashboardPage() {
       <div>
         <h1 className="text-2xl text-foreground">Tableau de bord</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {requests.length} demande{requests.length > 1 ? "s" : ""} au total · {b2b} professionnelle
-          {b2b > 1 ? "s" : ""} · {requests.length - b2b} particulier
-          {requests.length - b2b > 1 ? "s" : ""}
+          {requests.length} demande{requests.length > 1 ? "s" : ""} au total · {directBusiness} entreprise{directBusiness > 1 ? "s" : ""} · {subcontracting} sous-traitance · {requests.length - b2b} particulier{requests.length - b2b > 1 ? "s" : ""}
         </p>
       </div>
 
@@ -78,6 +88,13 @@ function DashboardPage() {
           value={String(followUp.length)}
         />
       </div>
+
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard icon={Inbox} label="Prospects contactés" value={String(contactedProspects)} />
+        <StatCard icon={TrendingUp} label="Prospects intéressés" value={String(interestedProspects)} />
+        <StatCard icon={TrendingUp} label="Prospects convertis" value={String(convertedProspects)} />
+        <StatCard icon={Euro} label="Pipeline sous-traitance" value={formatEuros(requests.filter((r) => r.client_type === "sous_traitance" && r.status !== "gagne" && r.status !== "perdu").reduce((sum, r) => sum + Number(r.estimate_max ?? 0), 0))} />
+      </section>
 
       <section>
         <div className="flex items-center justify-between">
