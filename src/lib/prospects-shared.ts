@@ -16,18 +16,15 @@ export const PROSPECT_STATUSES: Option[] = [
 
 export type ProspectStatus = (typeof PROSPECT_STATUSES)[number]["value"];
 
-/** Target segments for a cleaning company, with the search phrase used to find them. */
+/** Target segments for subcontracting: other cleaning companies that can delegate jobs. */
 export const SECTORS: Array<Option & { query: string }> = [
-  { value: "bureaux", label: "Bureaux & coworking", query: "bureaux entreprise coworking" },
-  { value: "syndic", label: "Syndics & copropriétés", query: "syndic de copropriété" },
-  { value: "immobilier", label: "Agences immobilières", query: "agence immobilière" },
-  { value: "medical", label: "Cabinets médicaux & dentaires", query: "cabinet médical dentaire" },
-  { value: "commerce", label: "Commerces", query: "magasin commerce" },
-  { value: "restaurant", label: "Restaurants & cafés", query: "restaurant café" },
-  { value: "sport", label: "Salles de sport", query: "salle de sport fitness" },
-  { value: "hotel", label: "Hôtels & résidences", query: "hôtel résidence" },
-  { value: "ecole", label: "Écoles & crèches privées", query: "école privée crèche" },
-  { value: "btp", label: "Entreprises du bâtiment", query: "entreprise de bâtiment travaux" },
+  { value: "entreprise_nettoyage", label: "Entreprises de nettoyage", query: "entreprise de nettoyage" },
+  { value: "societe_proprete", label: "Sociétés de propreté", query: "société de propreté" },
+  { value: "nettoyage_bureaux", label: "Nettoyage de bureaux", query: "entreprise nettoyage bureaux" },
+  { value: "nettoyage_industriel", label: "Nettoyage industriel", query: "entreprise nettoyage industriel" },
+  { value: "nettoyage_chantier", label: "Nettoyage de chantiers", query: "entreprise nettoyage fin de chantier" },
+  { value: "nettoyage_vitres", label: "Nettoyage vitres", query: "entreprise nettoyage vitres" },
+  { value: "proprete_services", label: "Prestataires de propreté", query: "prestataire services propreté nettoyage" },
 ];
 
 /** Priority areas — Seine-Saint-Denis first, then Paris est and the rest of IDF. */
@@ -107,7 +104,15 @@ export function scoreProspect(input: ScoreInput): number {
   if (input.website) score += 8;
   if ((input.reviewsCount ?? 0) >= 20) score += 5;
 
-  const highValue = ["bureaux", "syndic", "immobilier", "medical", "hotel", "ecole"];
+  const highValue = [
+    "entreprise_nettoyage",
+    "societe_proprete",
+    "nettoyage_bureaux",
+    "nettoyage_industriel",
+    "nettoyage_chantier",
+    "nettoyage_vitres",
+    "proprete_services",
+  ];
   if (input.sector && highValue.includes(input.sector)) score += 9;
 
   return Math.max(0, Math.min(100, score));
