@@ -28,6 +28,7 @@ import { Route as AuthenticatedAppDemandesIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppDemandesIdRouteImport } from './routes/_authenticated/app.demandes.$id'
 import { Route as ApiPublicHooksProspectionQuotidienneRouteImport } from './routes/api/public/hooks/prospection-quotidienne'
 import { Route as ApiPublicHooksB2bLeadRouteImport } from './routes/api/public/hooks/b2b-lead'
+import { Route as ApiPublicHooksAutomatisationQuotidienneRouteImport } from './routes/api/public/hooks/automatisation-quotidienne'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -125,6 +126,11 @@ const ApiPublicHooksProspectionQuotidienneRoute =
     path: '/api/public/hooks/prospection-quotidienne',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksAutomatisationQuotidienneRoute = ApiPublicHooksAutomatisationQuotidienneRouteImport.update({
+  id: '/api/public/hooks/automatisation-quotidienne',
+  path: '/api/public/hooks/automatisation-quotidienne',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksB2bLeadRoute = ApiPublicHooksB2bLeadRouteImport.update({
   id: '/api/public/hooks/b2b-lead',
   path: '/api/public/hooks/b2b-lead',
@@ -155,6 +161,9 @@ export interface FileRoutesByFullPath {
   '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
   '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
   '/api/public/hooks/b2b-lead': typeof ApiPublicHooksB2bLeadRoute
+  '/api/public/hooks/automatisation-quotidienne': typeof ApiPublicHooksAutomatisationQuotidienneRoute
+  '/api/public/hooks/automatisation-quotidienne': typeof ApiPublicHooksAutomatisationQuotidienneRoute
+  '/api/public/hooks/automatisation-quotidienne': typeof ApiPublicHooksAutomatisationQuotidienneRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
