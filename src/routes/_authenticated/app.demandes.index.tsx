@@ -59,7 +59,7 @@ function RequestsPage() {
           .some((field) => String(field).toLowerCase().includes(term));
       return matchStatus && matchType && matchTerm;
     });
-  }, [data, search, status]);
+  }, [data, search, status, clientType]);
 
   return (
     <div className="space-y-6">
