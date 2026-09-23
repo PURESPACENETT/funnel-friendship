@@ -27,6 +27,7 @@ import { Route as AuthenticatedAppTarifsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAppDemandesIndexRouteImport } from './routes/_authenticated/app.demandes.index'
 import { Route as AuthenticatedAppDemandesIdRouteImport } from './routes/_authenticated/app.demandes.$id'
 import { Route as ApiPublicHooksProspectionQuotidienneRouteImport } from './routes/api/public/hooks/prospection-quotidienne'
+import { Route as ApiPublicHooksB2bLeadRouteImport } from './routes/api/public/hooks/b2b-lead'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -124,6 +125,11 @@ const ApiPublicHooksProspectionQuotidienneRoute =
     path: '/api/public/hooks/prospection-quotidienne',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksB2bLeadRoute = ApiPublicHooksB2bLeadRouteImport.update({
+  id: '/api/public/hooks/b2b-lead',
+  path: '/api/public/hooks/b2b-lead',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -148,6 +154,8 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
   '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
+  '/api/public/hooks/b2b-lead': typeof ApiPublicHooksB2bLeadRoute
+  '/api/public/hooks/b2b-lead': typeof ApiPublicHooksB2bLeadRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
