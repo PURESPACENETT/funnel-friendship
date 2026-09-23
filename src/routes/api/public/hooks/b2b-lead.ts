@@ -29,7 +29,7 @@ export const Route = createFileRoute("/api/public/hooks/b2b-lead")({
         }
 
         const parsed = quoteRequestSchema.safeParse(body);
-        if (!parsed.success || parsed.data.clientType !== "entreprise") {
+        if (!parsed.success || parsed.data.clientType !== "sous_traitance") {
           return Response.json({ error: "Données B2B invalides" }, { status: 400 });
         }
 
