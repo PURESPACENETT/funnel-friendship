@@ -45,17 +45,19 @@ function RequestsPage() {
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string>("tous");
+  const [clientType, setClientType] = useState<string>("tous");
 
   const rows = useMemo(() => {
     const term = search.trim().toLowerCase();
     return (data ?? []).filter((r) => {
       const matchStatus = status === "tous" || r.status === status;
+      const matchType = clientType === "tous" || r.client_type === clientType;
       const matchTerm =
         !term ||
         [r.contact_name, r.company_name, r.city, r.email, r.phone, r.postal_code]
           .filter(Boolean)
           .some((field) => String(field).toLowerCase().includes(term));
-      return matchStatus && matchTerm;
+      return matchStatus && matchType && matchTerm;
     });
   }, [data, search, status]);
 
@@ -77,6 +79,23 @@ function RequestsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {[{ value: "tous", label: "Tous les types" }, ...CLIENT_TYPES].map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setClientType(option.value)}
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-sm transition-colors",
+                clientType === option.value
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-background hover:bg-secondary",
+              )}
+            >
+              {option.label}
+            </button>
+          ))}
         </div>
         <div className="flex flex-wrap gap-1.5">
           {[{ value: "tous", label: "Tous" }, ...STATUSES].map((option) => (
