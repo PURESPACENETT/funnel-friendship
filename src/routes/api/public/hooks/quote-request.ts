@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { secretMatches } from "@/lib/secret-compare.server";
 import { DEFAULT_PRICING, estimatePrice, scoreRequest } from "@/lib/quotes-shared";
 
 const secretSchema = z.string().min(32).max(256);
@@ -113,7 +114,7 @@ export const Route = createFileRoute("/api/public/hooks/quote-request")({
           "";
         const provided = request.headers.get("x-quote-webhook-secret") ?? "";
 
-        if (!expected || !secretSchema.safeParse(expected).success || provided !== expected) {
+        if (!expected || !secretSchema.safeParse(expected).success || !secretMatches(provided, [expected])) {
           return Response.json({ error: "unauthorized" }, { status: 401, headers });
         }
 
