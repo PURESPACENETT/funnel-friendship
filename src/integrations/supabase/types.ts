@@ -142,6 +142,7 @@ export type Database = {
           created_at: string
           email: string | null
           external_id: string | null
+          followup_sent_at: string | null
           found_emails: string[]
           id: string
           latitude: number | null
@@ -172,6 +173,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           external_id?: string | null
+          followup_sent_at?: string | null
           found_emails?: string[]
           id?: string
           latitude?: number | null
@@ -202,6 +204,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           external_id?: string | null
+          followup_sent_at?: string | null
           found_emails?: string[]
           id?: string
           latitude?: number | null
@@ -247,6 +250,7 @@ export type Database = {
           phone: string
           postal_code: string
           property_type: string
+          review_requested_at: string | null
           rooms: number | null
           score: number
           services: string[]
@@ -276,6 +280,7 @@ export type Database = {
           phone: string
           postal_code: string
           property_type: string
+          review_requested_at?: string | null
           rooms?: number | null
           score?: number
           services?: string[]
@@ -305,6 +310,7 @@ export type Database = {
           phone?: string
           postal_code?: string
           property_type?: string
+          review_requested_at?: string | null
           rooms?: number | null
           score?: number
           services?: string[]
