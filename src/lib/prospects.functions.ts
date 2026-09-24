@@ -4,19 +4,16 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   outreachDraftSchema,
+  PROSPECT_STATUS_VALUES,
+  PROSPECT_STATUSES,
+  labelOf,
   prospectPatchSchema,
   prospectSearchSchema,
   scoreProspect,
 } from "./prospects-shared";
+import { logProspectActivity } from "./prospect-activity.server";
 
-const statusEnum = z.enum([
-  "nouveau",
-  "a_contacter",
-  "contacte",
-  "interesse",
-  "converti",
-  "ecarte",
-]);
+const statusEnum = z.enum(PROSPECT_STATUS_VALUES);
 
 function enforceAmazighSignature(value: string): string {
   return value.replace(/\bAmine\b/gi, "Amazigh");
