@@ -55,6 +55,7 @@ import {
   scoreLabel,
 } from "@/lib/prospects-shared";
 import { cn } from "@/lib/utils";
+import { ProspectCrm } from "@/components/prospect-crm";
 
 const ProspectMap = lazy(() => import("@/components/prospect-map"));
 
@@ -346,6 +347,8 @@ function ProspectingPage() {
           vous le relisez et vous l'envoyez.
         </p>
       </div>
+
+      <ProspectCrm />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
