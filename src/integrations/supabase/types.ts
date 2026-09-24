@@ -92,6 +92,53 @@ export type Database = {
         }
         Relationships: []
       }
+      prospect_activities: {
+        Row: {
+          activity_type: Database["public"]["Enums"]["prospect_activity_type"]
+          body: string | null
+          created_at: string
+          created_by: string | null
+          dedupe_key: string | null
+          id: string
+          metadata: Json
+          occurred_at: string
+          prospect_id: string
+          title: string
+        }
+        Insert: {
+          activity_type: Database["public"]["Enums"]["prospect_activity_type"]
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          dedupe_key?: string | null
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          prospect_id: string
+          title: string
+        }
+        Update: {
+          activity_type?: Database["public"]["Enums"]["prospect_activity_type"]
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          dedupe_key?: string | null
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          prospect_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospect_activities_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prospect_searches: {
         Row: {
           area: string
@@ -131,6 +178,53 @@ export type Database = {
         }
         Relationships: []
       }
+      prospect_tasks: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          due_at: string | null
+          id: string
+          priority: Database["public"]["Enums"]["task_priority"]
+          prospect_id: string
+          task_type: Database["public"]["Enums"]["prospect_task_type"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_at?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          prospect_id: string
+          task_type?: Database["public"]["Enums"]["prospect_task_type"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_at?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          prospect_id?: string
+          task_type?: Database["public"]["Enums"]["prospect_task_type"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospect_tasks_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prospects: {
         Row: {
           address: string | null
@@ -147,7 +241,11 @@ export type Database = {
           id: string
           latitude: number | null
           longitude: number | null
+          loss_reason: string | null
           notes: string | null
+          opportunity_type:
+            | Database["public"]["Enums"]["opportunity_type"]
+            | null
           outreach_body: string | null
           outreach_generated_at: string | null
           outreach_sent_at: string | null
@@ -178,7 +276,11 @@ export type Database = {
           id?: string
           latitude?: number | null
           longitude?: number | null
+          loss_reason?: string | null
           notes?: string | null
+          opportunity_type?:
+            | Database["public"]["Enums"]["opportunity_type"]
+            | null
           outreach_body?: string | null
           outreach_generated_at?: string | null
           outreach_sent_at?: string | null
@@ -209,7 +311,11 @@ export type Database = {
           id?: string
           latitude?: number | null
           longitude?: number | null
+          loss_reason?: string | null
           notes?: string | null
+          opportunity_type?:
+            | Database["public"]["Enums"]["opportunity_type"]
+            | null
           outreach_body?: string | null
           outreach_generated_at?: string | null
           outreach_sent_at?: string | null
@@ -390,19 +496,48 @@ export type Database = {
     Enums: {
       app_role: "admin" | "staff"
       client_type: "entreprise" | "sous_traitance" | "particulier"
+      opportunity_type: "vente_directe" | "sous_traitance" | "les_deux"
+      prospect_activity_type:
+        | "note"
+        | "email_envoye"
+        | "email_recu"
+        | "appel"
+        | "relance"
+        | "rdv"
+        | "visite"
+        | "devis"
+        | "changement_statut"
+        | "tache"
       prospect_status:
         | "nouveau"
+        | "qualifie"
         | "a_contacter"
         | "contacte"
+        | "reponse_recue"
         | "interesse"
+        | "rdv_a_prendre"
+        | "rdv_effectue"
+        | "visite_technique"
+        | "devis_envoye"
+        | "negociation"
         | "converti"
+        | "perdu"
         | "ecarte"
+      prospect_task_type:
+        | "appeler"
+        | "email"
+        | "relance"
+        | "rdv"
+        | "visite"
+        | "devis"
+        | "autre"
       request_status:
         | "nouveau"
         | "contacte"
         | "devis_envoye"
         | "gagne"
         | "perdu"
+      task_priority: "basse" | "normale" | "haute" | "urgente"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -532,15 +667,46 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "staff"],
       client_type: ["entreprise", "sous_traitance", "particulier"],
+      opportunity_type: ["vente_directe", "sous_traitance", "les_deux"],
+      prospect_activity_type: [
+        "note",
+        "email_envoye",
+        "email_recu",
+        "appel",
+        "relance",
+        "rdv",
+        "visite",
+        "devis",
+        "changement_statut",
+        "tache",
+      ],
       prospect_status: [
         "nouveau",
+        "qualifie",
         "a_contacter",
         "contacte",
+        "reponse_recue",
         "interesse",
+        "rdv_a_prendre",
+        "rdv_effectue",
+        "visite_technique",
+        "devis_envoye",
+        "negociation",
         "converti",
+        "perdu",
         "ecarte",
       ],
+      prospect_task_type: [
+        "appeler",
+        "email",
+        "relance",
+        "rdv",
+        "visite",
+        "devis",
+        "autre",
+      ],
       request_status: ["nouveau", "contacte", "devis_envoye", "gagne", "perdu"],
+      task_priority: ["basse", "normale", "haute", "urgente"],
     },
   },
 } as const
