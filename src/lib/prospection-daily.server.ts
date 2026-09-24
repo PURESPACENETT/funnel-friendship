@@ -177,6 +177,7 @@ async function sendPreparedOutreach() {
     .not("outreach_subject", "is", null)
     .not("outreach_body", "is", null)
     .is("outreach_sent_at", null)
+    .eq("do_not_contact", false)
     .in("status", ["nouveau", "a_contacter"])
     .order("score", { ascending: false })
     .limit(SEND_LIMIT);
