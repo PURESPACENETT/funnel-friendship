@@ -332,6 +332,9 @@ export const sendOutreach = createServerFn({ method: "POST" })
       .maybeSingle();
     if (readError) throw new Error(readError.message);
     if (!row) throw new Error("Prospect introuvable");
+    if (row.do_not_contact) {
+      throw new Error("Ce prospect est marqué « ne pas contacter ». Retirez ce blocage avant tout envoi.");
+    }
     if (row.outreach_sent_at) throw new Error("Un email de prospection a déjà été envoyé à ce prospect.");
     if (!row.email) throw new Error("Ajoutez d'abord une adresse email pour ce prospect.");
     if (!row.outreach_subject || !row.outreach_body)
@@ -412,8 +415,48 @@ export const importProspects = createServerFn({ method: "POST" })
 
     if (rows.length === 0) throw new Error("Aucune ligne exploitable dans la liste collée.");
 
+    const normalize = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
+    const uniqueRows = Array.from(
+      new Map(
+        rows.map((row) => [
+          [normalize(row.name), normalize(row.city)].join("|"),
+          row,
+        ]),
+      ).values(),
+    );
+
+    const names = [...new Set(uniqueRows.map((row) => row.name.trim()))];
+    const emails = [...new Set(uniqueRows.map((row) => normalize(row.email)).filter(Boolean))];
+
+    const [{ data: existingByName, error: nameError }, { data: existingByEmail, error: emailError }] =
+      await Promise.all([
+        names.length
+          ? context.supabase.from("prospects").select("company_name,city").in("company_name", names)
+          : Promise.resolve({ data: [], error: null }),
+        emails.length
+          ? context.supabase.from("prospects").select("email").in("email", emails)
+          : Promise.resolve({ data: [], error: null }),
+      ]);
+    if (nameError) throw new Error(nameError.message);
+    if (emailError) throw new Error(emailError.message);
+
+    const existingKeys = new Set(
+      (existingByName ?? []).map((row) => [normalize(row.company_name), normalize(row.city ?? "")].join("|")),
+    );
+    const existingEmails = new Set((existingByEmail ?? []).map((row) => normalize(row.email ?? "")));
+
+    const fresh = uniqueRows.filter((row) => {
+      const key = [normalize(row.name), normalize(row.city)].join("|");
+      const email = normalize(row.email);
+      return !existingKeys.has(key) && (!email || !existingEmails.has(email));
+    });
+
+    if (fresh.length === 0) {
+      return { created: 0, skipped: uniqueRows.length };
+    }
+
     const { error } = await context.supabase.from("prospects").insert(
-      rows.map((row) => ({
+      fresh.map((row) => ({
         source: "import",
         status: "a_contacter" as const,
         company_name: row.name.slice(0, 200),
@@ -425,7 +468,7 @@ export const importProspects = createServerFn({ method: "POST" })
     );
     if (error) throw new Error(error.message);
 
-    return { created: rows.length };
+    return { created: fresh.length, skipped: uniqueRows.length - fresh.length };
   });
 
 /** Reads the company website and returns every public address found. */
