@@ -172,7 +172,7 @@ async function prepareRows(rows: any[]): Promise<number> {
 async function sendPreparedOutreach() {
   const { data: ready } = await supabaseAdmin
     .from("prospects")
-    .select("id, company_name, city, email, outreach_subject, outreach_body, outreach_generated_at")
+    .select("id, company_name, city, email, outreach_subject, outreach_body, outreach_generated_at, outreach_sent_at, do_not_contact")
     .not("email", "is", null)
     .not("outreach_subject", "is", null)
     .not("outreach_body", "is", null)
@@ -186,6 +186,10 @@ async function sendPreparedOutreach() {
 
   for (const row of ready ?? []) {
     try {
+      // Relecture juste avant l'envoi : protège contre un blocage « ne pas contacter »
+      // ou un envoi manuel intervenu après la sélection de la file.
+      if (row.do_not_contact || row.outreach_sent_at) continue;
+
       const safeBody = enforceAmazighSignature(row.outreach_body!);
       if (safeBody !== row.outreach_body) {
         const { error: signatureError } = await supabaseAdmin
