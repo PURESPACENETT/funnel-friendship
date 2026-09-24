@@ -172,7 +172,7 @@ async function prepareRows(rows: any[]): Promise<number> {
 async function sendPreparedOutreach() {
   const { data: ready } = await supabaseAdmin
     .from("prospects")
-    .select("id, company_name, city, email, outreach_subject, outreach_body, outreach_generated_at, do_not_contact")
+    .select("id, company_name, city, email, outreach_subject, outreach_body, outreach_generated_at, outreach_sent_at, do_not_contact")
     .not("email", "is", null)
     .not("outreach_subject", "is", null)
     .not("outreach_body", "is", null)
