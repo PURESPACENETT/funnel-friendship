@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertTriangle, Euro, Inbox, TrendingUp } from "lucide-react";
+import { AlertTriangle, ArrowRight, Euro, Inbox, Target, TrendingUp } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -54,6 +54,20 @@ function DashboardPage() {
   const conversion = closed ? Math.round((won / closed) * 100) : 0;
   const quotesSent = requests.filter((r) => r.status === "devis_envoye" || r.status === "gagne").length;
   const lost = requests.filter((r) => r.status === "perdu").length;
+  const statusCounts = STATUSES.reduce<Record<string, number>>((acc, option) => {
+    acc[option.value] = requests.filter((r) => r.status === option.value).length;
+    return acc;
+  }, {});
+  const wonValue = requests
+    .filter((r) => r.status === "gagne")
+    .reduce((sum, r) => sum + Number(r.estimate_max ?? 0), 0);
+  const wonAverage = won ? wonValue / won : 0;
+  const directPipeline = requests
+    .filter((r) => r.client_type === "entreprise" && r.status !== "gagne" && r.status !== "perdu")
+    .reduce((sum, r) => sum + Number(r.estimate_max ?? 0), 0);
+  const privatePipeline = requests
+    .filter((r) => r.client_type === "particulier" && r.status !== "gagne" && r.status !== "perdu")
+    .reduce((sum, r) => sum + Number(r.estimate_max ?? 0), 0);
   const b2b = requests.filter((r) => r.client_type !== "particulier").length;
   const subcontracting = requests.filter((r) => r.client_type === "sous_traitance").length;
   const directBusiness = requests.filter((r) => r.client_type === "entreprise").length;
@@ -103,6 +117,39 @@ function DashboardPage() {
         <StatCard icon={TrendingUp} label="Gagnés" value={String(won)} />
         <StatCard icon={AlertTriangle} label="Perdus" value={String(lost)} />
         <StatCard icon={TrendingUp} label="Dossiers clôturés" value={String(closed)} />
+      </section>
+
+      <section className="rounded-xl border border-border bg-card p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg text-foreground">Pipeline commercial</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Vue opérationnelle du parcours : demande → contact → devis → gagné/perdu.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Target className="size-4 text-primary" />
+            Panier moyen gagné : {formatEuros(wonAverage)}
+          </div>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {STATUSES.map((option, index) => (
+            <div key={option.value} className="relative rounded-lg border border-border bg-surface p-4">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs uppercase tracking-wide text-muted-foreground">{option.label}</span>
+                <span className="font-display text-xl text-foreground">{statusCounts[option.value] ?? 0}</span>
+              </div>
+              {index < STATUSES.length - 1 ? (
+                <ArrowRight className="absolute -right-2.5 top-1/2 hidden size-5 -translate-y-1/2 bg-card text-muted-foreground lg:block" />
+              ) : null}
+            </div>
+          ))}
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <PipelineCard label="Sous-traitance" value={requests.filter((r) => r.client_type === "sous_traitance").length} amount={requests.filter((r) => r.client_type === "sous_traitance" && r.status !== "gagne" && r.status !== "perdu").reduce((sum, r) => sum + Number(r.estimate_max ?? 0), 0)} />
+          <PipelineCard label="Entreprises" value={directBusiness} amount={directPipeline} />
+          <PipelineCard label="Particuliers" value={requests.filter((r) => r.client_type === "particulier").length} amount={privatePipeline} />
+        </div>
       </section>
 
       <section>
@@ -172,6 +219,26 @@ function DashboardPage() {
           </ul>
         </section>
       )}
+    </div>
+  );
+}
+
+function PipelineCard({
+  label,
+  value,
+  amount,
+}: {
+  label: string;
+  value: number;
+  amount: number;
+}) {
+  return (
+    <div className="rounded-lg border border-border p-4">
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+      <div className="mt-2 flex items-end justify-between gap-3">
+        <p className="font-display text-xl text-foreground">{value}</p>
+        <p className="text-sm text-muted-foreground">{formatEuros(amount)} ouverts</p>
+      </div>
     </div>
   );
 }
