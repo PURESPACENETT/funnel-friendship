@@ -98,8 +98,17 @@ export async function runDailyAutomation(): Promise<DailyAutomationResult> {
         replyTo: "contact@purespacenett.com",
       });
       if (result.sent) {
+        const sentAt = new Date().toISOString();
         prospectFollowups += 1;
-        await supabaseAdmin.from("prospects").update({ followup_sent_at: new Date().toISOString() }).eq("id", row.id);
+        await supabaseAdmin.from("prospects").update({ followup_sent_at: sentAt }).eq("id", row.id);
+        await supabaseAdmin.from("prospect_activities").insert({
+          prospect_id: row.id,
+          activity_type: "relance",
+          title: "Relance automatique envoyée",
+          occurred_at: sentAt,
+          metadata: { email: row.email, origin: "automatique", sentAt },
+          dedupe_key: "relance-" + row.id + "-" + sentAt.slice(0, 16),
+        });
       }
     } catch (error) {
       console.error("prospect followup failed", row.id, error);
