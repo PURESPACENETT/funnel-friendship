@@ -21,9 +21,16 @@ function serverEnvPlugin(): Plugin {
       // Lovable Cloud exposes the managed connection as server variables in
       // production. Mirror only the public values so Vite can embed them in
       // the browser bundle when their VITE_ aliases are not injected.
-      process.env['VITE_SUPABASE_URL'] ??= process.env['SUPABASE_URL'];
-      process.env['VITE_SUPABASE_PUBLISHABLE_KEY'] ??=
-        process.env['SUPABASE_PUBLISHABLE_KEY'];
+      // Assigning undefined to process.env stores the string "undefined",
+      // so only copy real URLs, with the public project values as fallback.
+      const isUrl = (v?: string) => !!v && /^https?:\/\//.test(v);
+      const url = [process.env['VITE_SUPABASE_URL'], process.env['SUPABASE_URL']].find(isUrl)
+        ?? "https://wewihwzeesxhugnupkpm.supabase.co";
+      const key = [process.env['VITE_SUPABASE_PUBLISHABLE_KEY'], process.env['SUPABASE_PUBLISHABLE_KEY']]
+        .find((v) => !!v && v !== "undefined")
+        ?? "sb_publishable_E8iNDHPwmHLdi8aBiYT3rw_W-FqbNOF";
+      process.env['VITE_SUPABASE_URL'] = url;
+      process.env['VITE_SUPABASE_PUBLISHABLE_KEY'] = key;
     },
   };
 }
