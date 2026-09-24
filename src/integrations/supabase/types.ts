@@ -503,12 +503,17 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_staff: { Args: { _user_id: string }; Returns: boolean }
-    }
+      is_staff: {
+        Args: {
+          _user_id: string
+        }
+        Returns: boolean
+      }
       get_quote_webhook_secret: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+    }
     Enums: {
       app_role: "admin" | "staff"
       client_type: "entreprise" | "sous_traitance" | "particulier"
