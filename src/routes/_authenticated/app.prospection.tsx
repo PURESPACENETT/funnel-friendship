@@ -608,6 +608,15 @@ function ProspectingPage() {
               </p>
             ) : (
               <>
+                {selected.outreach_sent_at ? (
+                  <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm">
+                    <p className="font-500">Premier email envoyé</p>
+                    <p className="text-xs text-muted-foreground">
+                      Une relance J+3 est planifiée pour {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(new Date(selected.outreach_sent_at).getTime() + 3 * 24 * 60 * 60 * 1000))}.
+                    </p>
+                  </div>
+                ) : null}
+
                 {selected.contact_name ? (
                   <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm">
                     <p className="font-500">{selected.contact_name}</p>
