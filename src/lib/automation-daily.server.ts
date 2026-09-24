@@ -15,7 +15,7 @@ function olderThan(value: string | null | undefined, days: number): boolean {
 }
 
 async function ownerEmail(): Promise<string | null> {
-  const { data } = await supabaseAdmin.from("pricing_settings").select("notify_email").maybeSingle();
+  const { data } = await supabaseAdmin.from("pricing_settings").select("notify_email").limit(1).maybeSingle();
   return data?.notify_email ?? null;
 }
 

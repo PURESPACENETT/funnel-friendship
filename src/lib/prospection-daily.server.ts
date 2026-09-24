@@ -206,10 +206,11 @@ async function sendPreparedOutreach() {
       if (!result.sent) continue;
 
       const sentAt = new Date().toISOString();
-      await supabaseAdmin
+      const { error: statusError } = await supabaseAdmin
         .from("prospects")
         .update({ outreach_sent_at: sentAt, status: "contacte" })
         .eq("id", row.id);
+      if (statusError) console.error("daily prospection status update failed", row.id, statusError.message);
 
       await supabaseAdmin.from("prospect_activities").insert({
         prospect_id: row.id,
@@ -218,7 +219,7 @@ async function sendPreparedOutreach() {
         body: row.outreach_subject,
         occurred_at: sentAt,
         metadata: { email: row.email, origin: "automatique", sentAt },
-        dedupe_key: "email-envoye-" + row.id + "-" + sentAt.slice(0, 16),
+        dedupe_key: "email-envoye-" + row.id + "-" + (row.outreach_generated_at ?? sentAt.slice(0, 10)),
       });
 
       contacted.push({ name: row.company_name, email: row.email!, city: row.city });
@@ -241,6 +242,7 @@ export async function notifyOwner(
   const { data: settings } = await supabaseAdmin
     .from("pricing_settings")
     .select("notify_email")
+    .limit(1)
     .maybeSingle();
   const ownerEmail = settings?.notify_email;
   if (!ownerEmail) return;
@@ -253,7 +255,7 @@ export async function notifyOwner(
     await sendTemplateEmail("prospect-contacted-owner", ownerEmail, {
       templateData: { companies: contacted, origin, summary },
       idempotencyKey: `prospect-contacted-${origin}-${contacted
-        .map((c) => c.email)
+        .map((c) => c.name + "|" + c.email)
         .join(",")
         .slice(0, 120)}-${new Date().toISOString().slice(0, 13)}`,
     });
