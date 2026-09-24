@@ -41,10 +41,22 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Validate Supabase Edge Function
+      - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
 
-      - name: Check quote webhook syntax
-        run: deno check supabase/functions/quote-request-webhook/index.ts
+      - name: Configure quote webhook dependencies
+        shell: bash
+        run: |
+          cat > supabase/functions/quote-request-webhook/deno.json <<'EOF'
+          {
+            "imports": {
+              "@supabase/supabase-js": "npm:@supabase/supabase-js@2"
+            },
+            "nodeModulesDir": "auto"
+          }
+          EOF
+
+      - name: Check quote webhook
+        run: deno check --config supabase/functions/quote-request-webhook/deno.json supabase/functions/quote-request-webhook/index.ts
