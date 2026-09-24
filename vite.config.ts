@@ -31,6 +31,10 @@ function serverEnvPlugin(): Plugin {
         ?? "sb_publishable_E8iNDHPwmHLdi8aBiYT3rw_W-FqbNOF";
       process.env['VITE_SUPABASE_URL'] = url;
       process.env['VITE_SUPABASE_PUBLISHABLE_KEY'] = key;
+      // Server functions read the non-VITE names; make sure they are set too.
+      if (!isUrl(process.env['SUPABASE_URL'])) process.env['SUPABASE_URL'] = url;
+      const sk = process.env['SUPABASE_PUBLISHABLE_KEY'];
+      if (!sk || sk === "undefined") process.env['SUPABASE_PUBLISHABLE_KEY'] = key;
     },
   };
 }
