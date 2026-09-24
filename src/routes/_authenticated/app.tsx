@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  CalendarCheck2,
   KanbanSquare,
   LayoutDashboard,
   Linkedin,
@@ -21,6 +22,7 @@ const NAV = [
   { to: "/app", label: "Tableau de bord", icon: LayoutDashboard, exact: true },
   { to: "/app/demandes", label: "Demandes", icon: ListChecks, exact: false },
   { to: "/app/pipeline", label: "Pipeline", icon: KanbanSquare, exact: false },
+  { to: "/app/aujourdhui", label: "À faire aujourd'hui", icon: CalendarCheck2, exact: false },
   { to: "/app/prospection", label: "Prospection", icon: Radar, exact: false },
   { to: "/app/linkedin", label: "LinkedIn", icon: Linkedin, exact: false },
   { to: "/app/tarifs", label: "Tarifs", icon: SlidersHorizontal, exact: false },
