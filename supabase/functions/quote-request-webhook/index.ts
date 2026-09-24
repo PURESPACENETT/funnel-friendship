@@ -166,13 +166,10 @@ Deno.serve(async (request) => {
   }
 
   try {
-    const body = await request.json();
+    const providedSecret =
+      request.headers.get("x-quote-webhook-secret") ||
+      request.headers.get("x-quote-webhook");
 
-    if (!body || typeof body !== "object" || Array.isArray(body)) {
-      return json({ ok: false, error: "Payload invalide" }, 400, origin);
-    }
-
-    const data = normalize(body as Record<string, unknown>);
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const secretKeysRaw = Deno.env.get("SUPABASE_SECRET_KEYS");
     const legacyServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -187,6 +184,43 @@ Deno.serve(async (request) => {
     const supabase = createClient(supabaseUrl, adminKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
+
+    const { data: expectedSecret, error: secretError } = await supabase.rpc(
+      "get_quote_webhook_secret",
+    );
+
+    if (secretError || !expectedSecret) {
+      console.error("Quote webhook secret unavailable", secretError);
+      return json({ ok: false, error: "Service temporairement indisponible" }, 503, origin);
+    }
+
+    if (!providedSecret || providedSecret !== expectedSecret) {
+      return json({ ok: false, error: "Non autorisé" }, 401, origin);
+    }
+
+    const body = await request.json();
+
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return json({ ok: false, error: "Payload invalide" }, 400, origin);
+    }
+
+    const data = normalize(body as Record<string, unknown>);
+    if (data.source_external_id) {
+      const { data: existing, error: existingError } = await supabase
+        .from("quote_requests")
+        .select("id, status, created_at")
+        .eq("source_external_id", data.source_external_id)
+        .maybeSingle();
+
+      if (existingError) {
+        console.error("quote_requests idempotency lookup failed", existingError);
+        return json({ ok: false, error: "Impossible de vérifier la demande" }, 500, origin);
+      }
+
+      if (existing) {
+        return json({ ok: true, duplicate: true, request: existing }, 200, origin);
+      }
+    }
 
     const { data: inserted, error } = await supabase
       .from("quote_requests")
