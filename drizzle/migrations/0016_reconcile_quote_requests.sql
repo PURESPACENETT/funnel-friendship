@@ -1,6 +1,11 @@
 -- Reconcile the live quote_requests table with the current application/CRM contract.
 -- Legacy columns are kept for backward compatibility.
 
+DO $$ BEGIN
+  CREATE TYPE public.client_type AS ENUM ('entreprise','sous_traitance','particulier');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
 ALTER TABLE public.quote_requests
   ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   ADD COLUMN IF NOT EXISTS client_type public.client_type,
@@ -22,20 +27,6 @@ ALTER TABLE public.quote_requests
   ADD COLUMN IF NOT EXISTS ai_next_step TEXT,
   ADD COLUMN IF NOT EXISTS ai_generated_at TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS review_requested_at TIMESTAMPTZ;
-
--- The current application uses the existing property_type, frequency and message columns.
--- Backfill the newly introduced CRM fields for any legacy rows.
-UPDATE public.quote_requests
-SET
-  contact_name = COALESCE(contact_name, full_name),
-  company_name = COALESCE(company_name, NULL),
-  surface_m2 = COALESCE(surface_m2, NULLIF(regexp_replace(COALESCE(surface, ''), '[^0-9]', '', 'g'), '')::INTEGER),
-  city = COALESCE(city, split_part(address, ',', 1)),
-  client_type = COALESCE(client_type, CASE
-    WHEN service_type ILIKE '%sous-traitance%' THEN 'sous_traitance'::public.client_type
-    WHEN service_type ILIKE '%entreprise%' THEN 'entreprise'::public.client_type
-    ELSE 'particulier'::public.client_type
-  END);
 
 CREATE INDEX IF NOT EXISTS quote_requests_created_at_idx
   ON public.quote_requests (created_at DESC);
