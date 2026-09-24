@@ -17,6 +17,13 @@ function serverEnvPlugin(): Plugin {
     config(_, { mode }) {
       const serverEnv = loadEnv(mode, process.cwd(), "");
       Object.assign(process.env, serverEnv);
+
+      // Lovable Cloud exposes the managed connection as server variables in
+      // production. Mirror only the public values so Vite can embed them in
+      // the browser bundle when their VITE_ aliases are not injected.
+      process.env.VITE_SUPABASE_URL ??= process.env.SUPABASE_URL;
+      process.env.VITE_SUPABASE_PUBLISHABLE_KEY ??=
+        process.env.SUPABASE_PUBLISHABLE_KEY;
     },
   };
 }
