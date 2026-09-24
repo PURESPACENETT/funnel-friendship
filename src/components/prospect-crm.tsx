@@ -321,11 +321,32 @@ export function ProspectCrm() {
         ))}
       </div>
 
+      <div className="grid gap-2 sm:grid-cols-3">
+        <Card>
+          <CardContent className="p-3">
+            <p className="text-xs text-muted-foreground">RDV</p>
+            <p className="mt-1 text-xl font-600">{kpis?.rdv ?? 0}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3">
+            <p className="text-xs text-muted-foreground">Devis</p>
+            <p className="mt-1 text-xl font-600">{kpis?.devis ?? 0}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3">
+            <p className="text-xs text-muted-foreground">Relances à venir</p>
+            <p className="mt-1 text-xl font-600">{tasks.filter((task) => !task.completed_at && task.task_type === "relance" && task.due_at && new Date(task.due_at).getTime() > Date.now()).length}</p>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        <span>RDV : <strong className="text-foreground">{kpis?.rdv ?? 0}</strong></span>
+        <span>Réponses : <strong className="text-foreground">{kpis?.reponses ?? 0}</strong></span>
+        <span>·</span>
         <span>·</span>
         <span>Devis : <strong className="text-foreground">{kpis?.devis ?? 0}</strong></span>
-        <span>·</span>
         <span>Gagnés : <strong className="text-foreground">{kpis?.gagnes ?? 0}</strong></span>
         <span>·</span>
         <span>Perdus : <strong className="text-foreground">{kpis?.perdus ?? 0}</strong></span>
