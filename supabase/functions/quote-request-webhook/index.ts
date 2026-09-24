@@ -103,6 +103,7 @@ function normalize(body: Record<string, unknown>) {
     normalizedServices.length * 5;
 
   return {
+    full_name: String(contactName).trim(),
     client_type: String(clientType),
     property_type: String(propertyType),
     surface_m2: surface,
