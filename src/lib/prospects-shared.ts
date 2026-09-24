@@ -5,16 +5,119 @@ export interface Option {
   label: string;
 }
 
-export const PROSPECT_STATUSES: Option[] = [
+export const PROSPECT_STATUS_VALUES = [
+  "nouveau",
+  "qualifie",
+  "a_contacter",
+  "contacte",
+  "reponse_recue",
+  "interesse",
+  "rdv_a_prendre",
+  "rdv_effectue",
+  "visite_technique",
+  "devis_envoye",
+  "negociation",
+  "converti",
+  "perdu",
+  "ecarte",
+] as const;
+
+export type ProspectStatus = (typeof PROSPECT_STATUS_VALUES)[number];
+
+export const PROSPECT_STATUSES: Array<Option & { value: ProspectStatus }> = [
   { value: "nouveau", label: "Nouveau" },
+  { value: "qualifie", label: "Qualifié" },
   { value: "a_contacter", label: "À contacter" },
   { value: "contacte", label: "Contacté" },
+  { value: "reponse_recue", label: "Réponse reçue" },
   { value: "interesse", label: "Intéressé" },
-  { value: "converti", label: "Client" },
+  { value: "rdv_a_prendre", label: "RDV à prendre" },
+  { value: "rdv_effectue", label: "RDV effectué" },
+  { value: "visite_technique", label: "Visite technique" },
+  { value: "devis_envoye", label: "Devis envoyé" },
+  { value: "negociation", label: "Négociation" },
+  { value: "converti", label: "Gagné" },
+  { value: "perdu", label: "Perdu" },
   { value: "ecarte", label: "Écarté" },
 ];
 
-export type ProspectStatus = (typeof PROSPECT_STATUSES)[number]["value"];
+/** Pipeline columns: several fine-grained statuses can share one column. */
+export const PIPELINE_COLUMNS: Array<{ key: string; label: string; statuses: ProspectStatus[] }> = [
+  { key: "qualifier", label: "À qualifier", statuses: ["nouveau", "qualifie"] },
+  { key: "a_contacter", label: "À contacter", statuses: ["a_contacter"] },
+  { key: "contacte", label: "Contacté", statuses: ["contacte"] },
+  { key: "reponse", label: "Réponse reçue", statuses: ["reponse_recue"] },
+  { key: "interesse", label: "Intéressé", statuses: ["interesse"] },
+  { key: "rdv", label: "RDV", statuses: ["rdv_a_prendre", "rdv_effectue"] },
+  { key: "visite", label: "Visite", statuses: ["visite_technique"] },
+  { key: "devis", label: "Devis", statuses: ["devis_envoye"] },
+  { key: "negociation", label: "Négociation", statuses: ["negociation"] },
+  { key: "gagne", label: "Gagné", statuses: ["converti"] },
+  { key: "perdu", label: "Perdu", statuses: ["perdu", "ecarte"] },
+];
+
+/** Statuses meaning the prospect has been reached at least once. */
+export const CONTACTED_STATUSES: ProspectStatus[] = [
+  "contacte",
+  "reponse_recue",
+  "interesse",
+  "rdv_a_prendre",
+  "rdv_effectue",
+  "visite_technique",
+  "devis_envoye",
+  "negociation",
+  "converti",
+];
+
+export const OPPORTUNITY_TYPES: Array<Option & { value: "vente_directe" | "sous_traitance" | "les_deux" }> = [
+  { value: "vente_directe", label: "Vente directe" },
+  { value: "sous_traitance", label: "Sous-traitance" },
+  { value: "les_deux", label: "Les deux" },
+];
+
+export const ACTIVITY_TYPES: Option[] = [
+  { value: "note", label: "Note" },
+  { value: "email_envoye", label: "Email envoyé" },
+  { value: "email_recu", label: "Email reçu" },
+  { value: "appel", label: "Appel" },
+  { value: "relance", label: "Relance" },
+  { value: "rdv", label: "RDV" },
+  { value: "visite", label: "Visite" },
+  { value: "devis", label: "Devis" },
+  { value: "changement_statut", label: "Changement de statut" },
+  { value: "tache", label: "Tâche" },
+];
+
+export const TASK_TYPES: Option[] = [
+  { value: "appeler", label: "Appeler" },
+  { value: "email", label: "Email" },
+  { value: "relance", label: "Relance" },
+  { value: "rdv", label: "RDV" },
+  { value: "visite", label: "Visite" },
+  { value: "devis", label: "Devis" },
+  { value: "autre", label: "Autre" },
+];
+
+export const TASK_PRIORITIES: Option[] = [
+  { value: "basse", label: "Basse" },
+  { value: "normale", label: "Normale" },
+  { value: "haute", label: "Haute" },
+  { value: "urgente", label: "Urgente" },
+];
+
+export const SUBCONTRACTING_SECTORS = [
+  "entreprise_nettoyage",
+  "societe_proprete",
+  "nettoyage_bureaux",
+  "nettoyage_industriel",
+  "nettoyage_chantier",
+  "nettoyage_vitres",
+  "proprete_services",
+];
+
+export function defaultOpportunityType(sector: string | null | undefined) {
+  return sector && SUBCONTRACTING_SECTORS.includes(sector) ? "sous_traitance" : "vente_directe";
+}
 
 /** Target segments for subcontracting: other cleaning companies that can delegate jobs. */
 export const SECTORS: Array<Option & { query: string }> = [
