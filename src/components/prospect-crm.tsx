@@ -311,11 +311,6 @@ export function ProspectCrm() {
           ["Contactés", kpis?.contactes ?? 0],
           ["Réponses", kpis?.reponses ?? 0],
           ["Intéressés", kpis?.interesses ?? 0],
-          ["RDV", kpis?.rdv ?? 0],
-          ["Devis", kpis?.devis ?? 0],
-          ["Gagnés", kpis?.gagnes ?? 0],
-          ["Perdus", kpis?.perdus ?? 0],
-          ["Taux de contact", kpis?.contactRate === null ? "—" : String(kpis?.contactRate ?? 0) + " %"],
         ].map(([label, value]) => (
           <Card key={String(label)}>
             <CardContent className="p-3">
@@ -324,6 +319,18 @@ export function ProspectCrm() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <span>RDV : <strong className="text-foreground">{kpis?.rdv ?? 0}</strong></span>
+        <span>·</span>
+        <span>Devis : <strong className="text-foreground">{kpis?.devis ?? 0}</strong></span>
+        <span>·</span>
+        <span>Gagnés : <strong className="text-foreground">{kpis?.gagnes ?? 0}</strong></span>
+        <span>·</span>
+        <span>Perdus : <strong className="text-foreground">{kpis?.perdus ?? 0}</strong></span>
+        <span>·</span>
+        <span>Taux de contact : <strong className="text-foreground">{kpis?.contactRate === null ? "—" : String(kpis?.contactRate ?? 0) + " %"}</strong></span>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -368,7 +375,7 @@ export function ProspectCrm() {
           {isLoading ? (
             <Card><CardContent className="p-6 text-sm text-muted-foreground">Chargement du CRM…</CardContent></Card>
           ) : view === "pipeline" ? (
-            <div className="grid gap-3 overflow-x-auto pb-2 xl:grid-cols-4">
+            <div className="grid max-h-[calc(100vh-390px)] min-h-[420px] gap-3 overflow-auto pb-2 xl:grid-cols-4">
               {PIPELINE_COLUMNS.map((column) => {
                 const items = filtered.filter((prospect) => column.statuses.includes(prospect.status as never));
                 return (
