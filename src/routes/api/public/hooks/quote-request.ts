@@ -2,10 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import {
-  estimatePrice,
-  scoreRequest,
-} from "@/lib/quotes-shared";
+import { DEFAULT_PRICING, estimatePrice, scoreRequest } from "@/lib/quotes-shared";
 
 const secretSchema = z.string().min(32).max(256);
 const quoteImportSchema = z.object({
@@ -25,34 +22,7 @@ const quoteImportSchema = z.object({
   message: z.string().trim().max(4000).optional().default(""),
 });
 
-const DEFAULT_PRICING = {
-  min_price: 90,
-  range_spread: 0.15,
-  property_rates: {
-    bureaux: 0.45,
-    commerce: 0.5,
-    immeuble: 0.4,
-    chantier: 1.2,
-    logement: 0.6,
-    autre: 0.5,
-  },
-  frequency_multipliers: {
-    ponctuel: 1.6,
-    hebdomadaire: 1,
-    plusieurs_semaine: 0.9,
-    quotidien: 0.8,
-    contrat_annuel: 0.85,
-  },
-  service_surcharges: {
-    nettoyage_courant: 0,
-    vitrerie: 0.15,
-    remise_en_etat: 0.4,
-    fin_de_chantier: 0.5,
-    desinfection: 0.2,
-  },
-} as const;
-
-const DEFAULT_SERVICE_KEYS = new Set(Object.keys(DEFAULT_PRICING.service_surcharges));
+const DEFAULT_SERVICE_KEYS = new Set(["nettoyage_courant", "vitrerie", "remise_en_etat", "fin_de_chantier", "desinfection"]);
 
 const DEFAULT_ALLOWED_ORIGINS = new Set([
   "https://purespacenett.com",
