@@ -26,9 +26,9 @@ import { Route as AuthenticatedAppProspectionRouteImport } from './routes/_authe
 import { Route as AuthenticatedAppTarifsRouteImport } from './routes/_authenticated/app.tarifs'
 import { Route as AuthenticatedAppDemandesIndexRouteImport } from './routes/_authenticated/app.demandes.index'
 import { Route as AuthenticatedAppDemandesIdRouteImport } from './routes/_authenticated/app.demandes.$id'
-import { Route as ApiPublicHooksProspectionQuotidienneRouteImport } from './routes/api/public/hooks/prospection-quotidienne'
-import { Route as ApiPublicHooksB2bLeadRouteImport } from './routes/api/public/hooks/b2b-lead'
 import { Route as ApiPublicHooksAutomatisationQuotidienneRouteImport } from './routes/api/public/hooks/automatisation-quotidienne'
+import { Route as ApiPublicHooksB2bLeadRouteImport } from './routes/api/public/hooks/b2b-lead'
+import { Route as ApiPublicHooksProspectionQuotidienneRouteImport } from './routes/api/public/hooks/prospection-quotidienne'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -120,22 +120,23 @@ const AuthenticatedAppDemandesIdRoute =
     path: '/demandes/$id',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const ApiPublicHooksAutomatisationQuotidienneRoute =
+  ApiPublicHooksAutomatisationQuotidienneRouteImport.update({
+    id: '/api/public/hooks/automatisation-quotidienne',
+    path: '/api/public/hooks/automatisation-quotidienne',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksB2bLeadRoute = ApiPublicHooksB2bLeadRouteImport.update({
+  id: '/api/public/hooks/b2b-lead',
+  path: '/api/public/hooks/b2b-lead',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksProspectionQuotidienneRoute =
   ApiPublicHooksProspectionQuotidienneRouteImport.update({
     id: '/api/public/hooks/prospection-quotidienne',
     path: '/api/public/hooks/prospection-quotidienne',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicHooksAutomatisationQuotidienneRoute = ApiPublicHooksAutomatisationQuotidienneRouteImport.update({
-  id: '/api/public/hooks/automatisation-quotidienne',
-  path: '/api/public/hooks/automatisation-quotidienne',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicHooksB2bLeadRoute = ApiPublicHooksB2bLeadRouteImport.update({
-  id: '/api/public/hooks/b2b-lead',
-  path: '/api/public/hooks/b2b-lead',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -159,11 +160,9 @@ export interface FileRoutesByFullPath {
   '/app/tarifs': typeof AuthenticatedAppTarifsRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
-  '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
+  '/api/public/hooks/automatisation-quotidienne': typeof ApiPublicHooksAutomatisationQuotidienneRoute
   '/api/public/hooks/b2b-lead': typeof ApiPublicHooksB2bLeadRoute
-  '/api/public/hooks/automatisation-quotidienne': typeof ApiPublicHooksAutomatisationQuotidienneRoute
-  '/api/public/hooks/automatisation-quotidienne': typeof ApiPublicHooksAutomatisationQuotidienneRoute
-  '/api/public/hooks/automatisation-quotidienne': typeof ApiPublicHooksAutomatisationQuotidienneRoute
+  '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
@@ -182,8 +181,9 @@ export interface FileRoutesByTo {
   '/app/tarifs': typeof AuthenticatedAppTarifsRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
-  '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
+  '/api/public/hooks/automatisation-quotidienne': typeof ApiPublicHooksAutomatisationQuotidienneRoute
   '/api/public/hooks/b2b-lead': typeof ApiPublicHooksB2bLeadRoute
+  '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/app/demandes': typeof AuthenticatedAppDemandesIndexRoute
 }
@@ -205,8 +205,9 @@ export interface FileRoutesById {
   '/_authenticated/app/tarifs': typeof AuthenticatedAppTarifsRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
-  '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
+  '/api/public/hooks/automatisation-quotidienne': typeof ApiPublicHooksAutomatisationQuotidienneRoute
   '/api/public/hooks/b2b-lead': typeof ApiPublicHooksB2bLeadRoute
+  '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
@@ -228,6 +229,8 @@ export interface FileRouteTypes {
     | '/app/tarifs'
     | '/app/'
     | '/app/demandes/$id'
+    | '/api/public/hooks/automatisation-quotidienne'
+    | '/api/public/hooks/b2b-lead'
     | '/api/public/hooks/prospection-quotidienne'
     | '/lovable/email/transactional/preview'
     | '/app/demandes/'
@@ -247,6 +250,8 @@ export interface FileRouteTypes {
     | '/app/tarifs'
     | '/app'
     | '/app/demandes/$id'
+    | '/api/public/hooks/automatisation-quotidienne'
+    | '/api/public/hooks/b2b-lead'
     | '/api/public/hooks/prospection-quotidienne'
     | '/lovable/email/transactional/preview'
     | '/app/demandes'
@@ -268,6 +273,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/tarifs'
     | '/_authenticated/app/'
     | '/_authenticated/app/demandes/$id'
+    | '/api/public/hooks/automatisation-quotidienne'
+    | '/api/public/hooks/b2b-lead'
     | '/api/public/hooks/prospection-quotidienne'
     | '/lovable/email/transactional/preview'
     | '/_authenticated/app/demandes/'
@@ -283,6 +290,8 @@ export interface RootRouteChildren {
   NettoyagePantinRoute: typeof NettoyagePantinRoute
   NettoyageParisRoute: typeof NettoyageParisRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiPublicHooksAutomatisationQuotidienneRoute: typeof ApiPublicHooksAutomatisationQuotidienneRoute
+  ApiPublicHooksB2bLeadRoute: typeof ApiPublicHooksB2bLeadRoute
   ApiPublicHooksProspectionQuotidienneRoute: typeof ApiPublicHooksProspectionQuotidienneRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
@@ -408,6 +417,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDemandesIdRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/api/public/hooks/automatisation-quotidienne': {
+      id: '/api/public/hooks/automatisation-quotidienne'
+      path: '/api/public/hooks/automatisation-quotidienne'
+      fullPath: '/api/public/hooks/automatisation-quotidienne'
+      preLoaderRoute: typeof ApiPublicHooksAutomatisationQuotidienneRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/b2b-lead': {
+      id: '/api/public/hooks/b2b-lead'
+      path: '/api/public/hooks/b2b-lead'
+      fullPath: '/api/public/hooks/b2b-lead'
+      preLoaderRoute: typeof ApiPublicHooksB2bLeadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/prospection-quotidienne': {
       id: '/api/public/hooks/prospection-quotidienne'
       path: '/api/public/hooks/prospection-quotidienne'
@@ -469,9 +492,11 @@ const rootRouteChildren: RootRouteChildren = {
   NettoyagePantinRoute: NettoyagePantinRoute,
   NettoyageParisRoute: NettoyageParisRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiPublicHooksAutomatisationQuotidienneRoute:
+    ApiPublicHooksAutomatisationQuotidienneRoute,
+  ApiPublicHooksB2bLeadRoute: ApiPublicHooksB2bLeadRoute,
   ApiPublicHooksProspectionQuotidienneRoute:
     ApiPublicHooksProspectionQuotidienneRoute,
-  ApiPublicHooksB2bLeadRoute: ApiPublicHooksB2bLeadRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
