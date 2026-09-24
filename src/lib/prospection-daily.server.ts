@@ -205,10 +205,21 @@ async function sendPreparedOutreach() {
       });
       if (!result.sent) continue;
 
+      const sentAt = new Date().toISOString();
       await supabaseAdmin
         .from("prospects")
-        .update({ outreach_sent_at: new Date().toISOString(), status: "contacte" })
+        .update({ outreach_sent_at: sentAt, status: "contacte" })
         .eq("id", row.id);
+
+      await supabaseAdmin.from("prospect_activities").insert({
+        prospect_id: row.id,
+        activity_type: "email_envoye",
+        title: "Email de prospection envoyé",
+        body: row.outreach_subject,
+        occurred_at: sentAt,
+        metadata: { email: row.email, origin: "automatique", sentAt },
+        dedupe_key: "email-envoye-" + row.id + "-" + sentAt.slice(0, 16),
+      });
 
       contacted.push({ name: row.company_name, email: row.email!, city: row.city });
     } catch (error) {
