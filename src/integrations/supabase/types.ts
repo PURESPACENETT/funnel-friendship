@@ -234,8 +234,6 @@ export type Database = {
           contact_name: string | null
           contact_title: string | null
           created_at: string
-          do_not_contact: boolean
-          do_not_contact_reason: string | null
           email: string | null
           external_id: string | null
           followup_sent_at: string | null
@@ -271,8 +269,6 @@ export type Database = {
           contact_name?: string | null
           contact_title?: string | null
           created_at?: string
-          do_not_contact?: boolean
-          do_not_contact_reason?: string | null
           email?: string | null
           external_id?: string | null
           followup_sent_at?: string | null
@@ -308,8 +304,6 @@ export type Database = {
           contact_name?: string | null
           contact_title?: string | null
           created_at?: string
-          do_not_contact?: boolean
-          do_not_contact_reason?: string | null
           email?: string | null
           external_id?: string | null
           followup_sent_at?: string | null
@@ -503,16 +497,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_staff: {
-        Args: {
-          _user_id: string
-        }
-        Returns: boolean
-      }
-      get_quote_webhook_secret: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "staff"
