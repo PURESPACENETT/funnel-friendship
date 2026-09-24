@@ -35,6 +35,11 @@ function isString(value: unknown, min = 0, max = 2000) {
   return typeof value === "string" && value.trim().length >= min && value.length <= max;
 }
 
+function isUuid(value: unknown) {
+  return typeof value === "string" &&
+    /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(value);
+}
+
 function normalize(body: Record<string, unknown>) {
   const clientType = body.clientType ?? body.client_type ?? "entreprise";
   const propertyType = body.propertyType ?? body.property_type ?? "autre";
@@ -65,8 +70,9 @@ function normalize(body: Record<string, unknown>) {
   if (!isString(companyName, 0, 160)) throw new Error("Nom d'entreprise invalide");
   if (!isString(phone, 6, 30)) throw new Error("Téléphone invalide");
   if (!isString(message, 0, 1500)) throw new Error("Message invalide");
-  if (sourceExternalId !== undefined && sourceExternalId !== null && !isString(sourceExternalId, 36, 36)) throw new Error("sourceExternalId invalide");
-  if (sourceExternalId !== undefined && sourceExternalId !== null && !/^[0-9a-fA-F-]{36}$/.test(String(sourceExternalId))) throw new Error("sourceExternalId invalide");
+  if (sourceExternalId !== undefined && sourceExternalId !== null && !isUuid(sourceExternalId)) {
+    throw new Error("sourceExternalId invalide");
+  }
   if (
     typeof email !== "string" ||
     !/^\S+@\S+\.\S+$/.test(email) ||
@@ -173,7 +179,15 @@ Deno.serve(async (request) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const secretKeysRaw = Deno.env.get("SUPABASE_SECRET_KEYS");
     const legacyServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const secretKeys = secretKeysRaw ? JSON.parse(secretKeysRaw) : null;
+
+    let secretKeys: Record<string, string> | null = null;
+    try {
+      secretKeys = secretKeysRaw ? JSON.parse(secretKeysRaw) : null;
+    } catch (error) {
+      console.error("Invalid SUPABASE_SECRET_KEYS configuration", error);
+      return json({ ok: false, error: "Service temporairement indisponible" }, 503, origin);
+    }
+
     const adminKey = secretKeys?.default || legacyServiceRoleKey;
 
     if (!supabaseUrl || !adminKey) {
@@ -205,6 +219,7 @@ Deno.serve(async (request) => {
     }
 
     const data = normalize(body as Record<string, unknown>);
+
     if (data.source_external_id) {
       const { data: existing, error: existingError } = await supabase
         .from("quote_requests")
@@ -229,6 +244,18 @@ Deno.serve(async (request) => {
       .single();
 
     if (error) {
+      if (error.code === "23505" && data.source_external_id) {
+        const { data: existing, error: existingError } = await supabase
+          .from("quote_requests")
+          .select("id, status, created_at")
+          .eq("source_external_id", data.source_external_id)
+          .maybeSingle();
+
+        if (!existingError && existing) {
+          return json({ ok: true, duplicate: true, request: existing }, 200, origin);
+        }
+      }
+
       console.error("quote_requests insert failed", error);
       return json(
         { ok: false, error: "Impossible d'enregistrer la demande" },
