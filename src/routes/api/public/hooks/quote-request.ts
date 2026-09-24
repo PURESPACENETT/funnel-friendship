@@ -108,10 +108,7 @@ export const Route = createFileRoute("/api/public/hooks/quote-request")({
         }),
       POST: async ({ request }) => {
         const headers = corsHeaders(request.headers.get("origin"));
-        const { data: vaultSecret, error: vaultSecretError } =
-          await supabaseAdmin.rpc("get_quote_webhook_secret");
         const expected =
-          (vaultSecretError ? "" : vaultSecret) ||
           process.env["PUBLIC_QUOTE_WEBHOOK_SECRET"] ||
           process.env["B2B_LEAD_WEBHOOK_SECRET"] ||
           "";

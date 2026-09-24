@@ -234,6 +234,7 @@ export type Database = {
           contact_name: string | null
           contact_title: string | null
           created_at: string
+          do_not_contact: boolean
           email: string | null
           external_id: string | null
           followup_sent_at: string | null
@@ -269,6 +270,7 @@ export type Database = {
           contact_name?: string | null
           contact_title?: string | null
           created_at?: string
+          do_not_contact?: boolean
           email?: string | null
           external_id?: string | null
           followup_sent_at?: string | null
@@ -304,6 +306,7 @@ export type Database = {
           contact_name?: string | null
           contact_title?: string | null
           created_at?: string
+          do_not_contact?: boolean
           email?: string | null
           external_id?: string | null
           followup_sent_at?: string | null
