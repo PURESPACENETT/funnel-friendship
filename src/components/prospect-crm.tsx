@@ -441,7 +441,7 @@ export function ProspectCrm() {
           </DialogHeader>
           {selected ? (
         <Card className="border-0 shadow-none">
-          <CardHeader className="hidden">
+          <CardHeader className="hidden" />
           <CardContent className="grid gap-5 lg:grid-cols-[1.1fr_1fr_1fr]">
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2">
@@ -471,9 +471,7 @@ export function ProspectCrm() {
                   <Input value={lossReason} onChange={(event) => setLossReasonValue(event.target.value)} placeholder="Motif de perte" />
                   <Button size="sm" variant="outline" onClick={() => lossMutation.mutate()}>Enregistrer le motif</Button>
                 </div>
-                  ) : null}
-        </DialogContent>
-      </Dialog>
+              ) : null}
 
               <div className="space-y-2 rounded-lg border border-border p-3">
                 <div className="flex items-center justify-between gap-3">
@@ -563,7 +561,9 @@ export function ProspectCrm() {
             </div>
           </CardContent>
         </Card>
-      ) : null}
+          ) : null}
+        </DialogContent>
+      </Dialog>
 
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <Filter className="size-3.5" />
