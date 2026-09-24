@@ -34,7 +34,7 @@ export async function runDailyAutomation(): Promise<DailyAutomationResult> {
 
   const { data: requests } = await supabaseAdmin
     .from("quote_requests")
-    .select("id, status, contact_name, email, created_at, last_contacted_at")
+    .select("id, status, contact_name, email, created_at, last_contacted_at, review_requested_at")
     .in("status", ["contacte", "devis_envoye", "gagne"])
     .order("created_at", { ascending: false })
     .limit(100);
@@ -42,6 +42,7 @@ export async function runDailyAutomation(): Promise<DailyAutomationResult> {
   for (const row of requests ?? []) {
     const reference = row.last_contacted_at ?? row.created_at;
     if (row.status === "gagne") {
+      if (row.review_requested_at) continue;
       if (!olderThan(row.created_at, REVIEW_DELAY_DAYS)) continue;
       if (reviewRequests >= REVIEW_REQUEST_LIMIT) break;
       try {
@@ -50,7 +51,10 @@ export async function runDailyAutomation(): Promise<DailyAutomationResult> {
           idempotencyKey: `review-request-${row.id}`,
           replyTo: "contact@purespacenett.com",
         });
-        if (result.sent) reviewRequests += 1;
+        if (result.sent) {
+          reviewRequests += 1;
+          await supabaseAdmin.from("quote_requests").update({ review_requested_at: new Date().toISOString() }).eq("id", row.id);
+        }
       } catch (error) {
         console.error("review request failed", row.id, error);
       }
@@ -76,7 +80,7 @@ export async function runDailyAutomation(): Promise<DailyAutomationResult> {
 
   const { data: prospects } = await supabaseAdmin
     .from("prospects")
-    .select("id, company_name, email, status, outreach_sent_at")
+    .select("id, company_name, email, status, outreach_sent_at, followup_sent_at")
     .eq("status", "contacte")
     .not("email", "is", null)
     .not("outreach_sent_at", "is", null)
@@ -84,6 +88,7 @@ export async function runDailyAutomation(): Promise<DailyAutomationResult> {
     .limit(100);
 
   for (const row of prospects ?? []) {
+    if (row.followup_sent_at) continue;
     if (!olderThan(row.outreach_sent_at, PROSPECT_DELAY_DAYS)) continue;
     if (prospectFollowups >= PROSPECT_FOLLOWUP_LIMIT) break;
     try {
@@ -92,7 +97,10 @@ export async function runDailyAutomation(): Promise<DailyAutomationResult> {
         idempotencyKey: `prospect-followup-${row.id}-1`,
         replyTo: "contact@purespacenett.com",
       });
-      if (result.sent) prospectFollowups += 1;
+      if (result.sent) {
+        prospectFollowups += 1;
+        await supabaseAdmin.from("prospects").update({ followup_sent_at: new Date().toISOString() }).eq("id", row.id);
+      }
     } catch (error) {
       console.error("prospect followup failed", row.id, error);
     }
