@@ -35,3 +35,5 @@
 - [x] Renforcer le endpoint d'automatisation : POST protégé, GET 405, réponses sans cache
 - [ ] Vérifier les secrets et le déclenchement cron en production
 - [ ] Exécuter un test bout-en-bout en production sans générer de relances réelles non souhaitées
+
+- [x] Persister en base la date de demande d’avis et la date de première relance prospect pour empêcher les doublons sur plusieurs exécutions cron
