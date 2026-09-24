@@ -55,12 +55,12 @@ CREATE OR REPLACE FUNCTION public.touch_updated_at()
 RETURNS trigger
 LANGUAGE plpgsql
 SET search_path = public
-AS $
+AS $touch$
 BEGIN
   NEW.updated_at = now();
   RETURN NEW;
 END;
-$;
+$touch$;
 
 CREATE TYPE public.prospect_status AS ENUM (
   'nouveau',
