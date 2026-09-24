@@ -335,6 +335,9 @@ export const sendOutreach = createServerFn({ method: "POST" })
     if (row.do_not_contact) {
       throw new Error("Ce prospect est marqué « ne pas contacter ». Retirez ce blocage avant tout envoi.");
     }
+    if (row.outreach_sent_at) {
+      throw new Error("Un email de prospection a déjà été envoyé à ce prospect.");
+    }
     if (!row.email) throw new Error("Ajoutez d'abord une adresse email pour ce prospect.");
     if (!row.outreach_subject || !row.outreach_body)
       throw new Error("Préparez d'abord le message avant l'envoi.");
