@@ -15,6 +15,53 @@ import { logProspectActivity } from "./prospect-activity.server";
 
 const statusEnum = z.enum(PROSPECT_STATUS_VALUES);
 
+
+async function createOutreachFollowUpTask(
+  supabase: { from: (table: string) => any },
+  prospectId: string,
+  companyName: string,
+  sentAt: string,
+  createdBy: string,
+) {
+  const title = "Relancer après premier email";
+  const dueAt = new Date(new Date(sentAt).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();
+
+  const { data: existing, error: existingError } = await supabase
+    .from("prospect_tasks")
+    .select("id")
+    .eq("prospect_id", prospectId)
+    .eq("title", title)
+    .is("completed_at", null)
+    .limit(1)
+    .maybeSingle();
+  if (existingError) throw new Error(existingError.message);
+  if (existing) return;
+
+  const { data: task, error: taskError } = await supabase
+    .from("prospect_tasks")
+    .insert({
+      prospect_id: prospectId,
+      title,
+      task_type: "relance",
+      due_at: dueAt,
+      priority: "normale",
+      created_by: createdBy,
+    })
+    .select("id")
+    .single();
+  if (taskError) throw new Error(taskError.message);
+
+  await logProspectActivity(supabase, {
+    prospectId,
+    type: "tache",
+    title: "Relance planifiée à J+3",
+    body: companyName,
+    metadata: { taskId: task.id, dueAt, origin: "automatique" },
+    createdBy,
+    dedupeKey: "followup-j3-" + prospectId,
+  });
+}
+
 function enforceAmazighSignature(value: string): string {
   return value.replace(/\bAmine\b/gi, "Amazigh");
 }
@@ -380,6 +427,18 @@ export const sendOutreach = createServerFn({ method: "POST" })
       createdBy: context.userId,
       dedupeKey: "email-envoye-" + data.id + "-" + sentAt.slice(0, 16),
     });
+
+    try {
+      await createOutreachFollowUpTask(
+        context.supabase,
+        data.id,
+        row.company_name,
+        sentAt,
+        context.userId,
+      );
+    } catch (taskError) {
+      console.error("manual J+3 follow-up task creation failed", data.id, taskError);
+    }
 
     try {
       const { notifyOwner } = await import("./prospection-daily.server");
