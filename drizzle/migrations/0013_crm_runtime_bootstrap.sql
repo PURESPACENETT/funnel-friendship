@@ -62,58 +62,41 @@ BEGIN
 END;
 $touch$;
 
-CREATE TYPE public.prospect_status AS ENUM (
-  'nouveau',
-  'qualifie',
-  'a_contacter',
-  'contacte',
-  'reponse_recue',
-  'interesse',
-  'rdv_a_prendre',
-  'rdv_effectue',
-  'visite_technique',
-  'devis_envoye',
-  'negociation',
-  'converti',
-  'perdu',
-  'ecarte'
-);
+DO $types$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'prospect_status') THEN
+    CREATE TYPE public.prospect_status AS ENUM (
+      'nouveau','qualifie','a_contacter','contacte','reponse_recue','interesse',
+      'rdv_a_prendre','rdv_effectue','visite_technique','devis_envoye','negociation',
+      'converti','perdu','ecarte'
+    );
+  ELSE
+    ALTER TYPE public.prospect_status ADD VALUE IF NOT EXISTS 'qualifie' AFTER 'nouveau';
+    ALTER TYPE public.prospect_status ADD VALUE IF NOT EXISTS 'reponse_recue' AFTER 'contacte';
+    ALTER TYPE public.prospect_status ADD VALUE IF NOT EXISTS 'rdv_a_prendre' AFTER 'interesse';
+    ALTER TYPE public.prospect_status ADD VALUE IF NOT EXISTS 'rdv_effectue' AFTER 'rdv_a_prendre';
+    ALTER TYPE public.prospect_status ADD VALUE IF NOT EXISTS 'visite_technique' AFTER 'rdv_effectue';
+    ALTER TYPE public.prospect_status ADD VALUE IF NOT EXISTS 'devis_envoye' AFTER 'visite_technique';
+    ALTER TYPE public.prospect_status ADD VALUE IF NOT EXISTS 'negociation' AFTER 'devis_envoye';
+    ALTER TYPE public.prospect_status ADD VALUE IF NOT EXISTS 'perdu' AFTER 'converti';
+  END IF;
+END $types$;
 
-CREATE TYPE public.opportunity_type AS ENUM (
-  'vente_directe',
-  'sous_traitance',
-  'les_deux'
-);
-
-CREATE TYPE public.prospect_activity_type AS ENUM (
-  'note',
-  'email_envoye',
-  'email_recu',
-  'appel',
-  'relance',
-  'rdv',
-  'visite',
-  'devis',
-  'changement_statut',
-  'tache'
-);
-
-CREATE TYPE public.prospect_task_type AS ENUM (
-  'appeler',
-  'email',
-  'relance',
-  'rdv',
-  'visite',
-  'devis',
-  'autre'
-);
-
-CREATE TYPE public.task_priority AS ENUM (
-  'basse',
-  'normale',
-  'haute',
-  'urgente'
-);
+DO $types$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'opportunity_type') THEN
+    CREATE TYPE public.opportunity_type AS ENUM ('vente_directe','sous_traitance','les_deux');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'prospect_activity_type') THEN
+    CREATE TYPE public.prospect_activity_type AS ENUM ('note','email_envoye','email_recu','appel','relance','rdv','visite','devis','changement_statut','tache');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'prospect_task_type') THEN
+    CREATE TYPE public.prospect_task_type AS ENUM ('appeler','email','relance','rdv','visite','devis','autre');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'task_priority') THEN
+    CREATE TYPE public.task_priority AS ENUM ('basse','normale','haute','urgente');
+  END IF;
+END $types$;
 
 CREATE TABLE IF NOT EXISTS public.prospects (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
