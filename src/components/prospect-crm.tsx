@@ -36,6 +36,7 @@ import {
   createProspectTask,
   getProspectCrmDetail,
   listProspectCrm,
+  setProspectDoNotContact,
   updateProspectLossReason,
   updateProspectOpportunityType,
 } from "@/lib/prospect-crm.functions";
@@ -52,6 +53,8 @@ type Prospect = {
   status: string;
   opportunity_type: string | null;
   loss_reason: string | null;
+  do_not_contact: boolean;
+  do_not_contact_reason: string | null;
   website: string | null;
   outreach_sent_at: string | null;
   created_at: string;
@@ -105,6 +108,7 @@ export function ProspectCrm() {
   const setStatus = useServerFn(updateProspectStatus);
   const setOpportunity = useServerFn(updateProspectOpportunityType);
   const setLossReason = useServerFn(updateProspectLossReason);
+  const setDoNotContact = useServerFn(setProspectDoNotContact);
   const addNote = useServerFn(addProspectNote);
   const createTask = useServerFn(createProspectTask);
   const completeTask = useServerFn(completeProspectTask);
@@ -228,6 +232,22 @@ export function ProspectCrm() {
     mutationFn: () => setLossReason({ data: { id: selectedId!, lossReason: lossReason.trim() || null } }),
     onSuccess: () => {
       toast.success("Motif de perte enregistré.");
+      invalidate();
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const doNotContactMutation = useMutation({
+    mutationFn: (value: boolean) =>
+      setDoNotContact({
+        data: {
+          id: selectedId!,
+          doNotContact: value,
+          reason: value ? "Blocage manuel depuis le CRM" : null,
+        },
+      }),
+    onSuccess: () => {
+      toast.success("Préférence de contact enregistrée.");
       invalidate();
     },
     onError: (error: Error) => toast.error(error.message),
@@ -434,6 +454,33 @@ export function ProspectCrm() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>{PROSPECT_STATUSES.map((status) => <SelectItem key={status.value} value={status.value}>{status.label}</SelectItem>)}</SelectContent>
                 </Select>
+              </div>
+
+
+              <div className="space-y-2 rounded-lg border border-border p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-500">Prospection</p>
+                    <p className="text-xs text-muted-foreground">
+                      {selected.do_not_contact
+                        ? "Aucun email de prospection ne sera envoyé à ce prospect."
+                        : "Les envois automatiques restent autorisés pour ce prospect."}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={selected.do_not_contact ? "default" : "outline"}
+                    disabled={doNotContactMutation.isPending}
+                    onClick={() => doNotContactMutation.mutate(!selected.do_not_contact)}
+                  >
+                    {selected.do_not_contact ? "Réactiver le contact" : "Ne pas contacter"}
+                  </Button>
+                </div>
+                {selected.do_not_contact && selected.do_not_contact_reason ? (
+                  <p className="text-xs text-muted-foreground">
+                    Motif : {selected.do_not_contact_reason}
+                  </p>
+                ) : null}
               </div>
 
               {selected.status === "perdu" ? (
