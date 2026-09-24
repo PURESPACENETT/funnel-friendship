@@ -17,7 +17,7 @@ export const Route = createFileRoute("/api/public/hooks/b2b-lead")({
       POST: async ({ request }) => {
         const expected = process.env["B2B_LEAD_WEBHOOK_SECRET"] ?? "";
         const provided = request.headers.get("x-b2b-lead-secret") ?? "";
-        if (!expected || !secretSchema.safeParse(expected).success || provided !== expected) {
+        if (!expected || !secretSchema.safeParse(expected).success || !(await import("@/lib/secret-compare.server")).secretMatches(provided, [expected])) {
           return Response.json({ error: "unauthorized" }, { status: 401 });
         }
 

@@ -32,6 +32,21 @@ export const submitQuoteRequest = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // Anti-spam: at most 3 requests per email per hour, no identical resubmission within 10 minutes.
+    const hourAgo = new Date(Date.now() - 3600_000).toISOString();
+    const { data: recent } = await supabaseAdmin
+      .from("quote_requests")
+      .select("created_at, surface_m2, city")
+      .eq("email", data.email.trim().toLowerCase())
+      .gte("created_at", hourAgo);
+    if ((recent ?? []).length >= 3) {
+      throw new Error("Trop de demandes récentes avec cette adresse. Réessayez plus tard ou appelez le 07 59 48 30 21.");
+    }
+    const tenMinAgo = Date.now() - 600_000;
+    if ((recent ?? []).some((r) => new Date(r.created_at).getTime() > tenMinAgo && r.surface_m2 === data.surfaceM2 && r.city === data.city)) {
+      throw new Error("Cette demande a déjà été reçue. Nous revenons vers vous rapidement.");
+    }
+
     const { data: pricingRow } = await supabaseAdmin
       .from("pricing_settings")
       .select("*")
@@ -56,7 +71,7 @@ export const submitQuoteRequest = createServerFn({ method: "POST" })
         desired_date: data.desiredDate ? data.desiredDate : null,
         contact_name: data.contactName,
         company_name: data.companyName || null,
-        email: data.email,
+        email: data.email.trim().toLowerCase(),
         phone: data.phone,
         message: data.message || null,
         estimate_min: estimate.min,

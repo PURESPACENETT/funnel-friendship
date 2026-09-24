@@ -8,12 +8,12 @@ export const Route = createFileRoute("/api/public/hooks/prospection-quotidienne"
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { secretMatches, providedCronSecret } = await import("@/lib/secret-compare.server");
         const accepted = [
           process.env["PROSPECTION_CRON_SECRET"],
           process.env["LOVABLE_CRON_SECRET"],
-        ].filter((value): value is string => Boolean(value));
-        const provided = request.headers.get("x-cron-secret");
-        if (accepted.length === 0 || !provided || !accepted.includes(provided)) {
+        ];
+        if (!secretMatches(providedCronSecret(request), accepted)) {
           return new Response(JSON.stringify({ error: "unauthorized" }), {
             status: 401,
             headers: { "Content-Type": "application/json" },

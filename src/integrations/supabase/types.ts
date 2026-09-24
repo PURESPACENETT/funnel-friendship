@@ -231,8 +231,6 @@ export type Database = {
           city: string | null
           company_name: string
           contact_linkedin: string | null
-          do_not_contact: boolean
-          do_not_contact_reason: string | null
           contact_name: string | null
           contact_title: string | null
           created_at: string
@@ -268,8 +266,6 @@ export type Database = {
           city?: string | null
           company_name: string
           contact_linkedin?: string | null
-          do_not_contact?: boolean
-          do_not_contact_reason?: string | null
           contact_name?: string | null
           contact_title?: string | null
           created_at?: string
@@ -305,8 +301,6 @@ export type Database = {
           city?: string | null
           company_name?: string
           contact_linkedin?: string | null
-          do_not_contact?: boolean
-          do_not_contact_reason?: string | null
           contact_name?: string | null
           contact_title?: string | null
           created_at?: string

@@ -29,18 +29,18 @@ const DEFAULT_ALLOWED_ORIGINS = new Set([
   "https://www.purespacenett.com",
 ]);
 
-function corsHeaders(origin: string | null): HeadersInit {
+function corsHeaders(origin: string | null): Record<string, string> {
   const configured = (process.env["PUBLIC_QUOTE_WEBHOOK_ORIGIN"] ?? "")
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);
-  const allowedOrigins = new Set(
+  const allowedOrigins = new Set<string>(
     configured.length ? configured : DEFAULT_ALLOWED_ORIGINS,
   );
   const allowOrigin =
     origin && allowedOrigins.has(origin)
       ? origin
-      : [...allowedOrigins][0];
+      : ([...allowedOrigins][0] ?? "https://purespacenett.com");
 
   return {
     "Access-Control-Allow-Origin": allowOrigin,

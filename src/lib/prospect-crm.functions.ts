@@ -17,7 +17,7 @@ export const listProspectCrm = createServerFn({ method: "GET" })
       await Promise.all([
         context.supabase
           .from("prospects")
-          .select("id,company_name,city,postal_code,email,phone,score,status,opportunity_type,loss_reason,do_not_contact,do_not_contact_reason,website,outreach_sent_at,created_at,updated_at")
+          .select("id,company_name,city,postal_code,email,phone,score,status,opportunity_type,loss_reason,website,outreach_sent_at,created_at,updated_at")
           .order("score", { ascending: false })
           .order("created_at", { ascending: false })
           .limit(400),
@@ -186,40 +186,6 @@ export const updateProspectOpportunityType = createServerFn({ method: "POST" })
       .update({ opportunity_type: data.opportunityType })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
-    return { ok: true };
-  });
-
-export const setProspectDoNotContact = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z.object({
-      id: z.string().uuid(),
-      doNotContact: z.boolean(),
-      reason: z.string().trim().max(500).nullable().optional(),
-    }).parse(input),
-  )
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("prospects")
-      .update({
-        do_not_contact: data.doNotContact,
-        do_not_contact_reason: data.doNotContact
-          ? data.reason || "Blocage manuel depuis le CRM"
-          : null,
-      })
-      .eq("id", data.id);
-    if (error) throw new Error(error.message);
-
-    await logProspectActivity(context.supabase, {
-      prospectId: data.id,
-      type: "changement_statut",
-      title: data.doNotContact
-        ? "Prospect marqué « ne pas contacter »"
-        : "Prospect réactivé pour contact",
-      body: data.doNotContact ? data.reason || null : null,
-      createdBy: context.userId,
-      dedupeKey: "do-not-contact-" + data.id + "-" + data.doNotContact,
-    });
     return { ok: true };
   });
 
