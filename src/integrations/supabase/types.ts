@@ -142,6 +142,7 @@ export type Database = {
           created_at: string
           email: string | null
           external_id: string | null
+          followup_sent_at: string | null
           found_emails: string[]
           id: string
           latitude: number | null
@@ -172,6 +173,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           external_id?: string | null
+          followup_sent_at?: string | null
           found_emails?: string[]
           id?: string
           latitude?: number | null
@@ -248,6 +250,7 @@ export type Database = {
           postal_code: string
           property_type: string
           rooms: number | null
+          review_requested_at: string | null
           score: number
           services: string[]
           status: Database["public"]["Enums"]["request_status"]
@@ -277,6 +280,7 @@ export type Database = {
           postal_code: string
           property_type: string
           rooms?: number | null
+          review_requested_at?: string | null
           score?: number
           services?: string[]
           status?: Database["public"]["Enums"]["request_status"]
@@ -306,6 +310,7 @@ export type Database = {
           postal_code?: string
           property_type?: string
           rooms?: number | null
+          review_requested_at?: string | null
           score?: number
           services?: string[]
           status?: Database["public"]["Enums"]["request_status"]
