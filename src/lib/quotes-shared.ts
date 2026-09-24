@@ -91,30 +91,35 @@ export interface PricingSettings {
   service_surcharges: Record<string, number>;
 }
 
+/**
+ * Pricing baseline: 25 EUR/hour, VAT-exempt pricing basis.
+ * Rates below are derived from the supplied productivity assumptions:
+ * 20 m²/h for standard sites and 15 m²/h for chantier/remise en état.
+ */
 export const DEFAULT_PRICING: PricingSettings = {
-  min_price: 90,
-  range_spread: 0.15,
+  min_price: 25,
+  range_spread: 0,
   property_rates: {
-    bureaux: 0.45,
-    commerce: 0.5,
-    immeuble: 0.4,
-    chantier: 1.2,
-    logement: 0.6,
-    autre: 0.5,
+    bureaux: 1.25,
+    commerce: 1.25,
+    immeuble: 1.25,
+    chantier: 1.6667,
+    logement: 1.25,
+    autre: 1.25,
   },
   frequency_multipliers: {
-    ponctuel: 1.6,
+    ponctuel: 1,
     hebdomadaire: 1,
-    plusieurs_semaine: 0.9,
-    quotidien: 0.8,
-    contrat_annuel: 0.85,
+    plusieurs_semaine: 1,
+    quotidien: 1,
+    contrat_annuel: 1,
   },
   service_surcharges: {
     nettoyage_courant: 0,
-    vitrerie: 0.15,
-    remise_en_etat: 0.4,
-    fin_de_chantier: 0.5,
-    desinfection: 0.2,
+    vitrerie: 0,
+    remise_en_etat: 0,
+    fin_de_chantier: 0,
+    desinfection: 0,
   },
 };
 
