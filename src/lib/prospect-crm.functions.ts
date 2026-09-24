@@ -46,6 +46,39 @@ export const listProspectCrm = createServerFn({ method: "GET" })
     };
   });
 
+export const listTodayProspectTasks = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+
+    const { data: tasks, error: taskError } = await context.supabase
+      .from("prospect_tasks")
+      .select("id,prospect_id,title,task_type,due_at,priority,completed_at")
+      .lt("due_at", end.toISOString())
+      .order("completed_at", { ascending: true, nullsFirst: true })
+      .order("due_at", { ascending: true, nullsFirst: false })
+      .limit(200);
+    if (taskError) throw new Error(taskError.message);
+
+    const prospectIds = [...new Set((tasks ?? []).map((task) => task.prospect_id))];
+    const { data: prospects, error: prospectError } = prospectIds.length
+      ? await context.supabase
+          .from("prospects")
+          .select("id,company_name,city,status,do_not_contact")
+          .in("id", prospectIds)
+      : { data: [], error: null };
+    if (prospectError) throw new Error(prospectError.message);
+
+    const byId = new Map((prospects ?? []).map((prospect) => [prospect.id, prospect]));
+    return (tasks ?? []).map((task) => ({
+      ...task,
+      prospect: byId.get(task.prospect_id) ?? null,
+    }));
+  });
+
 export const getProspectCrmDetail = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
