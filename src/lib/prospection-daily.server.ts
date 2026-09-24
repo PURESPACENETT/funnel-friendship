@@ -21,6 +21,48 @@ const PLAN: { sector: string; area: string; radiusKm: number }[][] = [
 const PREPARE_LIMIT = 6;
 const SEND_LIMIT = 8;
 
+
+async function createOutreachFollowUpTask(
+  prospectId: string,
+  companyName: string,
+  sentAt: string,
+) {
+  const title = "Relancer après premier email";
+  const dueAt = new Date(new Date(sentAt).getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: existing, error: existingError } = await supabaseAdmin
+    .from("prospect_tasks")
+    .select("id")
+    .eq("prospect_id", prospectId)
+    .eq("title", title)
+    .is("completed_at", null)
+    .limit(1)
+    .maybeSingle();
+  if (existingError) throw new Error(existingError.message);
+  if (existing) return;
+  const { data: task, error: taskError } = await supabaseAdmin
+    .from("prospect_tasks")
+    .insert({
+      prospect_id: prospectId,
+      title,
+      task_type: "relance",
+      due_at: dueAt,
+      priority: "normale",
+      created_by: null,
+    })
+    .select("id")
+    .single();
+  if (taskError) throw new Error(taskError.message);
+  await supabaseAdmin.from("prospect_activities").insert({
+    prospect_id: prospectId,
+    activity_type: "tache",
+    title: "Relance planifiée à J+3",
+    body: companyName,
+    occurred_at: sentAt,
+    metadata: { taskId: task.id, dueAt, origin: "automatique" },
+    dedupe_key: "followup-j3-" + prospectId,
+  });
+}
+
 function enforceAmazighSignature(value: string): string {
   return value.replace(/\bAmine\b/gi, "Amazigh");
 }
@@ -223,6 +265,12 @@ async function sendPreparedOutreach() {
         metadata: { email: row.email, origin: "automatique", sentAt },
         dedupe_key: "email-envoye-" + row.id + "-" + (row.outreach_generated_at ?? sentAt.slice(0, 10)),
       });
+
+      try {
+        await createOutreachFollowUpTask(row.id, row.company_name, sentAt);
+      } catch (taskError) {
+        console.error("automatic J+3 follow-up task creation failed", row.id, taskError);
+      }
 
       contacted.push({ name: row.company_name, email: row.email!, city: row.city });
     } catch (error) {
