@@ -17,7 +17,7 @@ export const listProspectCrm = createServerFn({ method: "GET" })
       await Promise.all([
         context.supabase
           .from("prospects")
-          .select("id,company_name,city,postal_code,email,phone,score,status,opportunity_type,loss_reason,website,outreach_sent_at,created_at,updated_at")
+          .select("id,company_name,city,postal_code,email,phone,score,status,opportunity_type,loss_reason,do_not_contact,do_not_contact_reason,website,outreach_sent_at,created_at,updated_at")
           .order("score", { ascending: false })
           .order("created_at", { ascending: false })
           .limit(400),
