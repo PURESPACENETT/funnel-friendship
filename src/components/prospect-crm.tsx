@@ -3,7 +3,6 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   CalendarClock,
   CheckCircle2,
-  ChevronDown,
   ChevronRight,
   ExternalLink,
   Filter,
