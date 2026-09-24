@@ -129,6 +129,7 @@ function ProspectingPage() {
   const [email, setEmail] = useState("");
   const [center, setCenter] = useState<{ latitude: number; longitude: number } | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [workspace, setWorkspace] = useState<"crm" | "acquisition">("crm");
 
   useEffect(() => setMounted(true), []);
 
@@ -348,9 +349,20 @@ function ProspectingPage() {
         </p>
       </div>
 
-      <ProspectCrm />
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-2">
+        <Button variant={workspace === "crm" ? "default" : "outline"} onClick={() => setWorkspace("crm")}>
+          CRM & relances
+        </Button>
+        <Button variant={workspace === "acquisition" ? "default" : "outline"} onClick={() => setWorkspace("acquisition")}>
+          Recherche & nouveaux prospects
+        </Button>
+      </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      {workspace === "crm" ? (
+        <ProspectCrm />
+      ) : (
+        <div className="space-y-6">
+          <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Prospecter des entreprises de nettoyage</CardTitle>
@@ -773,7 +785,9 @@ function ProspectingPage() {
             )}
           </CardContent>
         </Card>
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
