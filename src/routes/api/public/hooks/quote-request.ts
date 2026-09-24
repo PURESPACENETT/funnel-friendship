@@ -5,10 +5,23 @@ import { quoteRequestSchema } from "@/lib/quotes-shared";
 import { submitQuoteRequest } from "@/lib/quotes.functions";
 
 const secretSchema = z.string().min(32).max(256);
+const DEFAULT_ALLOWED_ORIGINS = new Set([
+  "https://purespacenett.com",
+  "https://www.purespacenett.com",
+]);
 
 function corsHeaders(origin: string | null): HeadersInit {
-  const allowedOrigin = process.env["PUBLIC_QUOTE_WEBHOOK_ORIGIN"] ?? "https://purespacenett.com";
-  const allowOrigin = origin === allowedOrigin ? origin : allowedOrigin;
+  const configured = (process.env["PUBLIC_QUOTE_WEBHOOK_ORIGIN"] ?? "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const allowedOrigins = new Set(
+    configured.length ? configured : DEFAULT_ALLOWED_ORIGINS,
+  );
+  const allowOrigin =
+    origin && allowedOrigins.has(origin)
+      ? origin
+      : [...allowedOrigins][0];
 
   return {
     "Access-Control-Allow-Origin": allowOrigin,
