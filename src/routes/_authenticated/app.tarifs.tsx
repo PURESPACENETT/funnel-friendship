@@ -82,7 +82,7 @@ function PricingPage() {
             onChange={(v) => setForm((p) => ({ ...p, min_price: v }))}
           />
           <NumberField
-            label="Largeur de fourchette (0,15 = ±15 %)"
+            label="Marge de fourchette (0 = tarif exact)"
             value={form.range_spread}
             step={0.05}
             onChange={(v) => setForm((p) => ({ ...p, range_spread: v }))}
@@ -101,7 +101,7 @@ function PricingPage() {
       </section>
 
       <section className="rounded-xl border border-border bg-card p-5">
-        <h2 className="text-base text-foreground">Tarif au m² par type de lieu (€)</h2>
+        <h2 className="text-base text-foreground">Tarif horaire équivalent par type de lieu (€ / h)</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           {PROPERTY_TYPES.map((item) => (
             <NumberField
@@ -131,7 +131,7 @@ function PricingPage() {
       </section>
 
       <section className="rounded-xl border border-border bg-card p-5">
-        <h2 className="text-base text-foreground">Majoration par prestation (0,1 = +10 %)</h2>
+        <h2 className="text-base text-foreground">Majoration par prestation (0 = tarif horaire de base)</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           {SERVICES.map((item) => (
             <NumberField
