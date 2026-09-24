@@ -189,6 +189,40 @@ export const updateProspectOpportunityType = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const setProspectDoNotContact = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      doNotContact: z.boolean(),
+      reason: z.string().trim().max(500).nullable().optional(),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("prospects")
+      .update({
+        do_not_contact: data.doNotContact,
+        do_not_contact_reason: data.doNotContact
+          ? data.reason || "Blocage manuel depuis le CRM"
+          : null,
+      })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+
+    await logProspectActivity(context.supabase, {
+      prospectId: data.id,
+      type: "changement_statut",
+      title: data.doNotContact
+        ? "Prospect marqué « ne pas contacter »"
+        : "Prospect réactivé pour contact",
+      body: data.doNotContact ? data.reason || null : null,
+      createdBy: context.userId,
+      dedupeKey: "do-not-contact-" + data.id + "-" + data.doNotContact,
+    });
+    return { ok: true };
+  });
+
 export const updateProspectLossReason = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
