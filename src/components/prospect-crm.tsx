@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   OPPORTUNITY_TYPES,
   PIPELINE_COLUMNS,
@@ -423,15 +424,17 @@ export function ProspectCrm() {
         </div>
       </div>
 
-      {selected ? (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-3">
-            <div>
-              <CardTitle className="text-base">{selected.company_name}</CardTitle>
-              <p className="text-xs text-muted-foreground">{selected.city ?? "Ville non renseignée"} · score {selected.score ?? 0} ({scoreLabel(selected.score ?? 0)})</p>
-            </div>
-            <Button size="sm" variant="ghost" onClick={() => setSelectedId(null)}>Fermer</Button>
-          </CardHeader>
+      <Dialog open={Boolean(selected)} onOpenChange={(open) => { if (!open) setSelectedId(null); }}>
+        <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selected?.company_name ?? "Prospect"}</DialogTitle>
+            <DialogDescription>
+              {selected ? `${selected.city ?? "Ville non renseignée"} · score ${selected.score ?? 0} (${scoreLabel(selected.score ?? 0)})` : ""}
+            </DialogDescription>
+          </DialogHeader>
+          {selected ? (
+        <Card className="border-0 shadow-none">
+          <CardHeader className="hidden">
           <CardContent className="grid gap-5 lg:grid-cols-[1.1fr_1fr_1fr]">
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2">
@@ -461,7 +464,9 @@ export function ProspectCrm() {
                   <Input value={lossReason} onChange={(event) => setLossReasonValue(event.target.value)} placeholder="Motif de perte" />
                   <Button size="sm" variant="outline" onClick={() => lossMutation.mutate()}>Enregistrer le motif</Button>
                 </div>
-              ) : null}
+                  ) : null}
+        </DialogContent>
+      </Dialog>
 
               <div className="space-y-2 rounded-lg border border-border p-3">
                 <div className="flex items-center justify-between gap-3">
