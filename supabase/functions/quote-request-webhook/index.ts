@@ -49,7 +49,8 @@ function normalize(body: Record<string, unknown>) {
   const companyName = body.companyName ?? body.company_name ?? "";
   const email = body.email;
   const phone = body.phone;
-  const message = body.message ?? "";\n  const sourceExternalId = body.sourceExternalId ?? body.source_external_id;
+  const message = body.message ?? "";
+  const sourceExternalId = body.sourceExternalId ?? body.source_external_id;
 
   const validClientTypes = ["entreprise", "sous_traitance", "particulier"];
   const validPropertyTypes = ["bureaux", "commerce", "immeuble", "chantier", "logement", "autre"];
@@ -63,7 +64,9 @@ function normalize(body: Record<string, unknown>) {
   if (!isString(contactName, 2, 120)) throw new Error("Nom du contact invalide");
   if (!isString(companyName, 0, 160)) throw new Error("Nom d'entreprise invalide");
   if (!isString(phone, 6, 30)) throw new Error("Téléphone invalide");
-  if (!isString(message, 0, 1500)) throw new Error("Message invalide");\n  if (sourceExternalId !== undefined && sourceExternalId !== null && !isString(sourceExternalId, 36, 36)) throw new Error("sourceExternalId invalide");\n  if (sourceExternalId !== undefined && sourceExternalId !== null && !/^[0-9a-fA-F-]{36}$/.test(String(sourceExternalId))) throw new Error("sourceExternalId invalide");
+  if (!isString(message, 0, 1500)) throw new Error("Message invalide");
+  if (sourceExternalId !== undefined && sourceExternalId !== null && !isString(sourceExternalId, 36, 36)) throw new Error("sourceExternalId invalide");
+  if (sourceExternalId !== undefined && sourceExternalId !== null && !/^[0-9a-fA-F-]{36}$/.test(String(sourceExternalId))) throw new Error("sourceExternalId invalide");
   if (
     typeof email !== "string" ||
     !/^\S+@\S+\.\S+$/.test(email) ||
@@ -107,7 +110,8 @@ function normalize(body: Record<string, unknown>) {
     company_name: String(companyName).trim() || null,
     email: String(email).trim().toLowerCase(),
     phone: String(phone).trim(),
-    message: String(message).trim() || null,\n    source_external_id: sourceExternalId ? String(sourceExternalId) : null,
+    message: String(message).trim() || null,
+    source_external_id: sourceExternalId ? String(sourceExternalId) : null,
     estimate_min: 0,
     estimate_max: 0,
     score,
