@@ -29,6 +29,7 @@ import { Route as AuthenticatedAppDemandesIdRouteImport } from './routes/_authen
 import { Route as ApiPublicHooksAutomatisationQuotidienneRouteImport } from './routes/api/public/hooks/automatisation-quotidienne'
 import { Route as ApiPublicHooksB2bLeadRouteImport } from './routes/api/public/hooks/b2b-lead'
 import { Route as ApiPublicHooksProspectionQuotidienneRouteImport } from './routes/api/public/hooks/prospection-quotidienne'
+import { Route as ApiPublicHooksQuoteRequestRouteImport } from './routes/api/public/hooks/quote-request'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -137,6 +138,12 @@ const ApiPublicHooksProspectionQuotidienneRoute =
     path: '/api/public/hooks/prospection-quotidienne',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksQuoteRequestRoute =
+  ApiPublicHooksQuoteRequestRouteImport.update({
+    id: '/api/public/hooks/quote-request',
+    path: '/api/public/hooks/quote-request',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -163,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/automatisation-quotidienne': typeof ApiPublicHooksAutomatisationQuotidienneRoute
   '/api/public/hooks/b2b-lead': typeof ApiPublicHooksB2bLeadRoute
   '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
+  '/api/public/hooks/quote-request': typeof ApiPublicHooksQuoteRequestRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
@@ -184,6 +192,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/automatisation-quotidienne': typeof ApiPublicHooksAutomatisationQuotidienneRoute
   '/api/public/hooks/b2b-lead': typeof ApiPublicHooksB2bLeadRoute
   '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
+  '/api/public/hooks/quote-request': typeof ApiPublicHooksQuoteRequestRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/app/demandes': typeof AuthenticatedAppDemandesIndexRoute
 }
@@ -208,6 +217,7 @@ export interface FileRoutesById {
   '/api/public/hooks/automatisation-quotidienne': typeof ApiPublicHooksAutomatisationQuotidienneRoute
   '/api/public/hooks/b2b-lead': typeof ApiPublicHooksB2bLeadRoute
   '/api/public/hooks/prospection-quotidienne': typeof ApiPublicHooksProspectionQuotidienneRoute
+  '/api/public/hooks/quote-request': typeof ApiPublicHooksQuoteRequestRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/app/demandes/': typeof AuthenticatedAppDemandesIndexRoute
 }
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/automatisation-quotidienne'
     | '/api/public/hooks/b2b-lead'
     | '/api/public/hooks/prospection-quotidienne'
+    | '/api/public/hooks/quote-request'
     | '/lovable/email/transactional/preview'
     | '/app/demandes/'
   fileRoutesByTo: FileRoutesByTo
@@ -253,6 +264,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/automatisation-quotidienne'
     | '/api/public/hooks/b2b-lead'
     | '/api/public/hooks/prospection-quotidienne'
+    | '/api/public/hooks/quote-request'
     | '/lovable/email/transactional/preview'
     | '/app/demandes'
   id:
@@ -276,6 +288,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/automatisation-quotidienne'
     | '/api/public/hooks/b2b-lead'
     | '/api/public/hooks/prospection-quotidienne'
+    | '/api/public/hooks/quote-request'
     | '/lovable/email/transactional/preview'
     | '/_authenticated/app/demandes/'
   fileRoutesById: FileRoutesById
@@ -293,6 +306,7 @@ export interface RootRouteChildren {
   ApiPublicHooksAutomatisationQuotidienneRoute: typeof ApiPublicHooksAutomatisationQuotidienneRoute
   ApiPublicHooksB2bLeadRoute: typeof ApiPublicHooksB2bLeadRoute
   ApiPublicHooksProspectionQuotidienneRoute: typeof ApiPublicHooksProspectionQuotidienneRoute
+  ApiPublicHooksQuoteRequestRoute: typeof ApiPublicHooksQuoteRequestRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -438,6 +452,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksProspectionQuotidienneRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/quote-request': {
+      id: '/api/public/hooks/quote-request'
+      path: '/api/public/hooks/quote-request'
+      fullPath: '/api/public/hooks/quote-request'
+      preLoaderRoute: typeof ApiPublicHooksQuoteRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
@@ -497,6 +518,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksB2bLeadRoute: ApiPublicHooksB2bLeadRoute,
   ApiPublicHooksProspectionQuotidienneRoute:
     ApiPublicHooksProspectionQuotidienneRoute,
+  ApiPublicHooksQuoteRequestRoute: ApiPublicHooksQuoteRequestRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
