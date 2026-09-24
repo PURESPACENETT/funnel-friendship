@@ -13,13 +13,12 @@ export const Route = createFileRoute("/api/public/hooks/automatisation-quotidien
           },
         }),
       POST: async ({ request }) => {
+        const { secretMatches, providedCronSecret } = await import("@/lib/secret-compare.server");
         const accepted = [
           process.env["AUTOMATION_CRON_SECRET"],
           process.env["LOVABLE_CRON_SECRET"],
-        ].filter((value): value is string => Boolean(value));
-        const providedHeader = request.headers.get("x-cron-secret") ?? request.headers.get("authorization");
-        const provided = providedHeader?.startsWith("Bearer ") ? providedHeader.slice(7) : providedHeader;
-        if (accepted.length === 0 || !provided || !accepted.includes(provided)) {
+        ];
+        if (!secretMatches(providedCronSecret(request), accepted)) {
           return new Response(JSON.stringify({ error: "unauthorized" }), {
             status: 401,
             headers: {
