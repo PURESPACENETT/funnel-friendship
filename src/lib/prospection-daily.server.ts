@@ -39,7 +39,19 @@ export interface DailyProspectionResult {
  * send it, and report every card that moved to "Contacté".
  */
 export async function runDailyProspection(): Promise<DailyProspectionResult> {
-  // The rotation follows the business timezone, not the server/runtime timezone.\n  const parisWeekday = new Intl.DateTimeFormat("en-US", {\n    timeZone: "Europe/Paris",\n    weekday: "short",\n  }).formatToParts(new Date()).find((part) => part.type === "weekday")?.value;\n  const weekdayIndex =\n    parisWeekday === "Sun" ? 0 :\n    parisWeekday === "Mon" ? 1 :\n    parisWeekday === "Tue" ? 2 :\n    parisWeekday === "Wed" ? 3 :\n    parisWeekday === "Thu" ? 4 :\n    parisWeekday === "Fri" ? 5 : 6;\n  const targets = PLAN[weekdayIndex] ?? PLAN[0]!;
+  // The rotation follows the business timezone, not the server/runtime timezone.
+  const parisWeekday = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Paris",
+    weekday: "short",
+  }).formatToParts(new Date()).find((part) => part.type === "weekday")?.value;
+  const weekdayIndex =
+    parisWeekday === "Sun" ? 0 :
+    parisWeekday === "Mon" ? 1 :
+    parisWeekday === "Tue" ? 2 :
+    parisWeekday === "Wed" ? 3 :
+    parisWeekday === "Thu" ? 4 :
+    parisWeekday === "Fri" ? 5 : 6;
+  const targets = PLAN[weekdayIndex] ?? PLAN[0]!;
   let found = 0;
   let created = 0;
   let prepared = 0;
