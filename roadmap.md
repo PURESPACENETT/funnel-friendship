@@ -25,3 +25,13 @@
 
 - [x] Page « Nettoyage de bureaux » (route, FAQ, données structurées, lien pied de page, plan du site)
 - [x] Google Search Console : connexion rattachée, site vérifié (tag META), propriété ajoutée, plan du site envoyé
+
+## CHANTIER G — Automatisation commerciale
+- [x] Relances des demandes avec fenêtre de 3 jours et idempotence par dossier
+- [x] Relances des prospects après 4 jours avec idempotence par prospect
+- [x] Demande d'avis automatique 1 jour après un dossier gagné
+- [x] Utiliser le lien Google actuel pour les demandes d'avis
+- [x] Rapport commercial quotidien avec déduplication de l'envoi
+- [x] Renforcer le endpoint d'automatisation : POST protégé, GET 405, réponses sans cache
+- [ ] Vérifier les secrets et le déclenchement cron en production
+- [ ] Exécuter un test bout-en-bout en production sans générer de relances réelles non souhaitées
