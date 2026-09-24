@@ -360,6 +360,8 @@ export type Database = {
           rooms: number | null
           score: number
           services: string[]
+          source_external_id: string | null
+          source_system: string | null
           status: Database["public"]["Enums"]["request_status"]
           surface_m2: number
           updated_at: string
@@ -390,6 +392,8 @@ export type Database = {
           rooms?: number | null
           score?: number
           services?: string[]
+          source_external_id?: string | null
+          source_system?: string | null
           status?: Database["public"]["Enums"]["request_status"]
           surface_m2?: number
           updated_at?: string
@@ -420,6 +424,8 @@ export type Database = {
           rooms?: number | null
           score?: number
           services?: string[]
+          source_external_id?: string | null
+          source_system?: string | null
           status?: Database["public"]["Enums"]["request_status"]
           surface_m2?: number
           updated_at?: string
