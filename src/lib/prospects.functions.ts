@@ -198,11 +198,31 @@ export const updateProspectStatus = createServerFn({ method: "POST" })
     z.object({ id: z.string().uuid(), status: statusEnum }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
+    const { data: current, error: readError } = await context.supabase
       .from("prospects")
-      .update({ status: data.status })
-      .eq("id", data.id);
-    if (error) throw new Error(error.message);
+      .select("status, company_name")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (readError) throw new Error(readError.message);
+    if (!current) throw new Error("Prospect introuvable.");
+
+    if (current.status !== data.status) {
+      const { error } = await context.supabase
+        .from("prospects")
+        .update({ status: data.status })
+        .eq("id", data.id);
+      if (error) throw new Error(error.message);
+
+      await logProspectActivity(context.supabase, {
+        prospectId: data.id,
+        type: "changement_statut",
+        title: "Statut : " + labelOf(PROSPECT_STATUSES, current.status) + " → " + labelOf(PROSPECT_STATUSES, data.status),
+        metadata: { oldStatus: current.status, newStatus: data.status },
+        createdBy: context.userId,
+        dedupeKey: "status-" + data.id + "-" + current.status + "-" + data.status + "-" + new Date().toISOString().slice(0, 16),
+      });
+    }
+
     return { ok: true };
   });
 
@@ -340,11 +360,22 @@ export const sendOutreach = createServerFn({ method: "POST" })
       return { sent: false as const, reason: result.reason };
     }
 
+    const sentAt = new Date().toISOString();
     const { error } = await context.supabase
       .from("prospects")
-      .update({ outreach_sent_at: new Date().toISOString(), status: "contacte" })
+      .update({ outreach_sent_at: sentAt, status: "contacte" })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
+
+    await logProspectActivity(context.supabase, {
+      prospectId: data.id,
+      type: "email_envoye",
+      title: "Email de prospection envoyé",
+      body: row.outreach_subject,
+      metadata: { email: row.email, sentAt, origin: "manuel" },
+      createdBy: context.userId,
+      dedupeKey: "email-envoye-" + data.id + "-" + sentAt.slice(0, 16),
+    });
 
     try {
       const { notifyOwner } = await import("./prospection-daily.server");
