@@ -82,10 +82,15 @@ function PricingPage() {
             onChange={(v) => setForm((p) => ({ ...p, min_price: v }))}
           />
           <NumberField
-            label="Marge de fourchette (0 = tarif exact)"
-            value={form.range_spread}
-            step={0.05}
-            onChange={(v) => setForm((p) => ({ ...p, range_spread: v }))}
+            label="Marge de fourchette en % (0 = tarif exact, max 60)"
+            value={Math.round(form.range_spread * 100)}
+            step={5}
+            onChange={(v) =>
+              setForm((p) => ({
+                ...p,
+                range_spread: Math.min(60, Math.max(0, Number.isFinite(v) ? v : 0)) / 100,
+              }))
+            }
           />
           <div className="space-y-1.5">
             <Label htmlFor="notify">Email d'alerte</Label>
