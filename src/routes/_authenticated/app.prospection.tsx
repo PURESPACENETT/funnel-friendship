@@ -340,7 +340,7 @@ function ProspectingPage() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       <div>
         <h1 className="font-display text-2xl font-600 tracking-tight">Prospection sous-traitance</h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -361,7 +361,7 @@ function ProspectingPage() {
       {workspace === "crm" ? (
         <ProspectCrm />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
