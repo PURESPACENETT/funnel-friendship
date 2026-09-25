@@ -57,6 +57,7 @@ export const listTodayProspectTasks = createServerFn({ method: "GET" })
     const { data: tasks, error: taskError } = await context.supabase
       .from("prospect_tasks")
       .select("id,prospect_id,title,task_type,due_at,priority,completed_at")
+      .is("completed_at", null)
       .lt("due_at", end.toISOString())
       .order("completed_at", { ascending: true, nullsFirst: true })
       .order("due_at", { ascending: true, nullsFirst: false })
