@@ -345,7 +345,6 @@ export function ProspectCrm() {
       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
         <span>Réponses : <strong className="text-foreground">{kpis?.reponses ?? 0}</strong></span>
         <span>·</span>
-        <span>·</span>
         <span>Devis : <strong className="text-foreground">{kpis?.devis ?? 0}</strong></span>
         <span>Gagnés : <strong className="text-foreground">{kpis?.gagnes ?? 0}</strong></span>
         <span>·</span>
