@@ -94,6 +94,11 @@ interface ProspectRow {
   found_emails: string[] | null;
 }
 
+interface OutreachProposal {
+  subject: string;
+  body: string;
+}
+
 function enforceAmazighSignature(value: string): string {
   return value.replace(/\bAmine\b/gi, "Amazigh");
 }
@@ -126,6 +131,8 @@ function ProspectingPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [proposals, setProposals] = useState<OutreachProposal[]>([]);
+  const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
   const [email, setEmail] = useState("");
   const [center, setCenter] = useState<{ latitude: number; longitude: number } | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -204,6 +211,11 @@ function ProspectingPage() {
     setSelectedId(prospect.id);
     setSubject(prospect.outreach_subject ?? "");
     setBody(enforceAmazighSignature(prospect.outreach_body ?? ""));
+    const savedDraft = prospect.outreach_subject && prospect.outreach_body
+      ? [{ subject: prospect.outreach_subject, body: enforceAmazighSignature(prospect.outreach_body) }]
+      : [];
+    setProposals(savedDraft);
+    setSelectedProposal(savedDraft.length > 0 ? 0 : null);
     setEmail(prospect.email ?? "");
 
     // Existing prospects created before automatic drafting may have no message.
@@ -246,12 +258,14 @@ function ProspectingPage() {
   });
 
   const draftMutation = useMutation({
-    mutationFn: (id: string) => runDraft({ data: { id } }),
-    onSuccess: (draft) => {
-      setSubject(draft.subject);
-      setBody(draft.body);
-      toast.success("Message préparé, relisez-le avant l'envoi.");
-      void refresh();
+    mutationFn: async (id: string) => ({ id, drafts: await runDraft({ data: { id } }) }),
+    onSuccess: ({ id, drafts }) => {
+      if (selectedId !== id) return;
+      setProposals(drafts);
+      setSelectedProposal(null);
+      setSubject("");
+      setBody("");
+      toast.success("3 propositions prêtes. Choisissez-en une avant de l'enregistrer ou de l'envoyer.");
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -732,8 +746,34 @@ function ProspectingPage() {
                   ) : (
                     <Sparkles className="size-4" />
                   )}
-                  Réécrire le message
+                  Générer 3 propositions
                 </Button>
+
+                {proposals.length > 0 ? (
+                  <fieldset className="space-y-2">
+                    <legend className="text-sm font-medium">Choisissez une proposition</legend>
+                    {proposals.map((proposal, index) => (
+                      <button
+                        key={`${proposal.subject}-${index}`}
+                        type="button"
+                        aria-pressed={selectedProposal === index}
+                        onClick={() => {
+                          setSelectedProposal(index);
+                          setSubject(proposal.subject);
+                          setBody(enforceAmazighSignature(proposal.body));
+                        }}
+                        className={cn(
+                          "w-full rounded-lg border p-3 text-left transition-colors",
+                          selectedProposal === index ? "border-primary bg-primary/5" : "border-border hover:bg-muted/60",
+                        )}
+                      >
+                        <span className="text-xs font-medium text-muted-foreground">Proposition {index + 1}</span>
+                        <span className="mt-1 block text-sm font-medium">{proposal.subject}</span>
+                        <span className="mt-2 block whitespace-pre-line text-xs text-muted-foreground">{proposal.body}</span>
+                      </button>
+                    ))}
+                  </fieldset>
+                ) : null}
 
                 <div className="space-y-1.5">
                   <Label>Objet</Label>
@@ -752,13 +792,13 @@ function ProspectingPage() {
                   <Button
                     variant="secondary"
                     onClick={() => saveMutation.mutate(selected.id)}
-                    disabled={saveMutation.isPending || subject.length < 3 || body.length < 20}
+                    disabled={saveMutation.isPending || selectedProposal === null || subject.length < 3 || body.length < 20}
                   >
                     Enregistrer
                   </Button>
                   <Button
                     onClick={() => sendMutation.mutate(selected.id)}
-                    disabled={sendMutation.isPending || !email || body.length < 20}
+                    disabled={sendMutation.isPending || !email || selectedProposal === null || subject.length < 3 || body.length < 20}
                   >
                     {sendMutation.isPending ? (
                       <Loader2 className="size-4 animate-spin" />
@@ -807,3 +847,4 @@ function ProspectingPage() {
     </div>
   );
 }
+
