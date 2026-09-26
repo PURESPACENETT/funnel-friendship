@@ -215,7 +215,7 @@ function ProspectingPage() {
       ? [{ subject: prospect.outreach_subject, body: enforceAmazighSignature(prospect.outreach_body) }]
       : [];
     setProposals(savedDraft);
-    setSelectedProposal(savedDraft.length > 0 ? 0 : null);
+    setSelectedProposal(null);
     setEmail(prospect.email ?? "");
 
     // Existing prospects created before automatic drafting may have no message.
