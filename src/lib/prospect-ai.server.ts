@@ -5,8 +5,8 @@ import { z } from "zod";
 import { labelOf, SECTORS } from "./prospects-shared";
 
 const outreachSchema = z.object({
-  subject: z.string(),
-  body: z.string(),
+  subject: z.string().trim().min(3),
+  body: z.string().trim().min(20),
 });
 
 export type OutreachDraft = z.infer<typeof outreachSchema>;
@@ -21,8 +21,13 @@ export interface OutreachInput {
 }
 
 const SUBCONTRACTING_SECTORS = new Set([
-  "entreprise_nettoyage", "societe_proprete", "nettoyage_bureaux",
-  "nettoyage_industriel", "nettoyage_chantier", "nettoyage_vitres", "proprete_services",
+  "entreprise_nettoyage",
+  "societe_proprete",
+  "nettoyage_bureaux",
+  "nettoyage_industriel",
+  "nettoyage_chantier",
+  "nettoyage_vitres",
+  "proprete_services",
 ]);
 
 const SYSTEM = [
@@ -55,12 +60,66 @@ function buildPrompt(input: OutreachInput): string {
   ].join("\n");
 }
 
-/** Drafts a personalised outreach email with Lovable AI. Returns null on failure. */
-export async function draftOutreachEmail(input: OutreachInput): Promise<OutreachDraft | null> {
+/**
+ * Deterministic fallback used when the AI provider is unavailable, misconfigured,
+ * rate-limited, or returns an invalid structured response. This guarantees that
+ * automatic prospecting never leaves the email fields empty.
+ */
+export function buildFallbackOutreachEmail(input: OutreachInput): OutreachDraft {
+  const subcontracting = input.sector ? SUBCONTRACTING_SECTORS.has(input.sector) : false;
+  const city = input.city?.trim();
+  const location = city ? ` à ${city}` : " en Île-de-France";
+
+  if (subcontracting) {
+    return {
+      subject: `Sous-traitance nettoyage${city ? ` — ${city}` : ""}`,
+      body: [
+        "Bonjour,",
+        "",
+        `Je suis Amazigh, de PURE SPACE NETT, entreprise de nettoyage professionnel basée au Pré-Saint-Gervais.`,
+        "",
+        `Nous intervenons${location} pour l'entretien de bureaux et locaux, la remise en état, la fin de chantier, la vitrerie et le renfort de capacité.`,
+        "",
+        "Nous pouvons intervenir en sous-traitance sur des chantiers délégués, des surcharges ponctuelles ou des besoins de renfort.",
+        "",
+        "Seriez-vous disponible pour un échange rapide afin de voir si ce partenariat peut correspondre à vos besoins ?",
+        "",
+        "Amazigh — PURE SPACE NETT",
+        "www.purespacenett.com",
+      ].join("\n"),
+    };
+  }
+
+  return {
+    subject: `Nettoyage professionnel${city ? ` — ${city}` : ""}`,
+    body: [
+      "Bonjour,",
+      "",
+      `Je suis Amazigh, de PURE SPACE NETT, entreprise de nettoyage professionnel basée au Pré-Saint-Gervais.`,
+      "",
+      `Nous proposons${location} l'entretien de bureaux et locaux, la remise en état, la fin de chantier, la vitrerie et le renfort de capacité.`,
+      "",
+      "Je vous contacte afin de savoir si vous avez actuellement un besoin de nettoyage ou un prochain chantier à préparer.",
+      "",
+      "Seriez-vous disponible pour un échange rapide ?",
+      "",
+      "Amazigh — PURE SPACE NETT",
+      "www.purespacenett.com",
+    ].join("\n"),
+  };
+}
+
+/**
+ * Drafts a personalised outreach email. The AI is attempted first, but a
+ * deterministic local draft is always returned when the provider is unavailable.
+ */
+export async function draftOutreachEmail(input: OutreachInput): Promise<OutreachDraft> {
+  const fallback = buildFallbackOutreachEmail(input);
   const key = process.env["LOVABLE_API_KEY"];
+
   if (!key) {
-    console.error("LOVABLE_API_KEY missing, skipping outreach drafting");
-    return null;
+    console.warn("LOVABLE_API_KEY missing; using deterministic outreach fallback");
+    return fallback;
   }
 
   const lovable = createOpenAI({
@@ -89,7 +148,7 @@ export async function draftOutreachEmail(input: OutreachInput): Promise<Outreach
     const output = await result.output;
     return outreachSchema.parse(output);
   } catch (error) {
-    console.error("Outreach drafting failed", error);
-    return null;
+    console.error("Outreach drafting failed; using deterministic fallback", error);
+    return fallback;
   }
 }
