@@ -308,7 +308,7 @@ export const updateProspect = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Drafts a personalised outreach email and stores it for review. */
+/** Generates alternatives for review. Only saveOutreach persists a chosen draft. */
 export const generateOutreach = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
@@ -321,8 +321,8 @@ export const generateOutreach = createServerFn({ method: "POST" })
     if (readError) throw new Error(readError.message);
     if (!row) throw new Error("Prospect introuvable");
 
-    const { draftOutreachEmail } = await import("./prospect-ai.server");
-    const draft = await draftOutreachEmail({
+    const { draftOutreachEmails } = await import("./prospect-ai.server");
+    const proposals = await draftOutreachEmails({
       companyName: row.company_name,
       sector: row.sector,
       city: row.city,
@@ -332,24 +332,10 @@ export const generateOutreach = createServerFn({ method: "POST" })
         .filter(Boolean)
         .join("\n") || null,
     });
-    if (!draft) throw new Error("La rédaction automatique a échoué, réessayez.");
-
-    const safeDraft = {
-      subject: draft.subject,
-      body: enforceAmazighSignature(draft.body),
-    };
-
-    const { error } = await context.supabase
-      .from("prospects")
-      .update({
-        outreach_subject: safeDraft.subject,
-        outreach_body: safeDraft.body,
-        outreach_generated_at: new Date().toISOString(),
-      })
-      .eq("id", data.id);
-    if (error) throw new Error(error.message);
-
-    return safeDraft;
+    return proposals.map((proposal) => ({
+      subject: proposal.subject,
+      body: enforceAmazighSignature(proposal.body),
+    }));
   });
 
 export const saveOutreach = createServerFn({ method: "POST" })
@@ -647,3 +633,4 @@ export const deleteProspect = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
