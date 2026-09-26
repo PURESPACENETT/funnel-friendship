@@ -205,6 +205,13 @@ function ProspectingPage() {
     setSubject(prospect.outreach_subject ?? "");
     setBody(enforceAmazighSignature(prospect.outreach_body ?? ""));
     setEmail(prospect.email ?? "");
+
+    // Existing prospects created before automatic drafting may have no message.
+    // Generate it immediately when the fiche is opened so the workflow never
+    // presents an empty subject/body without an action from the user.
+    if (!prospect.outreach_body) {
+      draftMutation.mutate(prospect.id);
+    }
   };
 
   const selectById = (id: string) => {
