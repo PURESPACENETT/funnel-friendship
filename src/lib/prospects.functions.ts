@@ -370,7 +370,7 @@ export const sendOutreach = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .maybeSingle();
     if (readError) throw new Error(readError.message);
-    if (!row) throw new Error("Prospect introuvable");
+    if (!row) throw new Error("Prospect introuvable.");
     if (row.do_not_contact) {
       throw new Error("Ce prospect est marqué « ne pas contacter ». Retirez ce blocage avant tout envoi.");
     }
@@ -379,70 +379,98 @@ export const sendOutreach = createServerFn({ method: "POST" })
     if (!row.outreach_subject || !row.outreach_body)
       throw new Error("Préparez d'abord le message avant l'envoi.");
 
-    const safeBody = enforceAmazighSignature(row.outreach_body);
-    if (safeBody !== row.outreach_body) {
-      const { error: signatureError } = await context.supabase
-        .from("prospects")
-        .update({ outreach_body: safeBody })
-        .eq("id", data.id);
-      if (signatureError) throw new Error(signatureError.message);
-    }
-
-    const { sendTemplateEmail } = await import("./email-templates/send-email");
-    const result = await sendTemplateEmail("prospect-outreach", row.email, {
-      templateData: {
-        subject: row.outreach_subject,
-        body: safeBody,
-        companyName: row.company_name,
-      },
-      idempotencyKey: `prospect-outreach-${row.id}-${row.outreach_generated_at ?? "manual"}`,
-      replyTo: "contact@purespacenett.com",
-    });
-
-    if (!result.sent) {
-      return { sent: false as const, reason: result.reason };
-    }
-
-    const sentAt = new Date().toISOString();
-    const { error } = await context.supabase
+    const now = new Date();
+    const staleBefore = new Date(now.getTime() - 15 * 60 * 1000).toISOString();
+    const { data: claim, error: claimError } = await context.supabase
       .from("prospects")
-      .update({ outreach_sent_at: sentAt, status: "contacte" })
-      .eq("id", data.id);
-    if (error) throw new Error(error.message);
-
-    await logProspectActivity(context.supabase, {
-      prospectId: data.id,
-      type: "email_envoye",
-      title: "Email de prospection envoyé",
-      body: row.outreach_subject,
-      metadata: { email: row.email, sentAt, origin: "manuel" },
-      createdBy: context.userId,
-      dedupeKey: "email-envoye-" + data.id + "-" + sentAt.slice(0, 16),
-    });
-
-    try {
-      await createOutreachFollowUpTask(
-        context.supabase,
-        data.id,
-        row.company_name,
-        sentAt,
-        context.userId,
-      );
-    } catch (taskError) {
-      console.error("manual J+3 follow-up task creation failed", data.id, taskError);
+      .update({ outreach_send_lock_at: now.toISOString() })
+      .eq("id", data.id)
+      .is("outreach_sent_at", null)
+      .or(`outreach_send_lock_at.is.null,outreach_send_lock_at.lt.${staleBefore}`)
+      .select("id")
+      .maybeSingle();
+    if (claimError) throw new Error(claimError.message);
+    if (!claim) {
+      throw new Error("Un envoi est déjà en cours pour ce prospect. Réessayez dans quelques instants.");
     }
 
+    const safeBody = enforceAmazighSignature(row.outreach_body);
     try {
-      const { notifyOwner } = await import("./prospection-daily.server");
-      await notifyOwner(
-        [{ name: row.company_name, email: row.email, city: row.city }],
-        "manuel",
-      );
-    } catch (alertError) {
-      console.error("owner contacted alert failed", alertError);
-    }
+      if (safeBody !== row.outreach_body) {
+        const { error: signatureError } = await context.supabase
+          .from("prospects")
+          .update({ outreach_body: safeBody })
+          .eq("id", data.id);
+        if (signatureError) throw new Error(signatureError.message);
+      }
 
-    return { sent: true as const };
+      const { sendTemplateEmail } = await import("./email-templates/send-email");
+      const result = await sendTemplateEmail("prospect-outreach", row.email, {
+        templateData: {
+          subject: row.outreach_subject,
+          body: safeBody,
+          companyName: row.company_name,
+        },
+        idempotencyKey: `prospect-outreach-${row.id}-${row.outreach_generated_at ?? "manual"}`,
+        replyTo: "contact@purespacenett.com",
+      });
+
+      if (!result.sent) {
+        await context.supabase
+          .from("prospects")
+          .update({ outreach_send_lock_at: null })
+          .eq("id", data.id);
+        return { sent: false as const, reason: result.reason };
+      }
+
+      const sentAt = new Date().toISOString();
+      const { error } = await context.supabase
+        .from("prospects")
+        .update({ outreach_sent_at: sentAt, outreach_send_lock_at: null, status: "contacte" })
+        .eq("id", data.id);
+      if (error) throw new Error(error.message);
+
+      await logProspectActivity(context.supabase, {
+        prospectId: data.id,
+        type: "email_envoye",
+        title: "Email de prospection envoyé",
+        body: row.outreach_subject,
+        metadata: { email: row.email, sentAt, origin: "manuel" },
+        createdBy: context.userId,
+        dedupeKey: "email-envoye-" + data.id + "-" + sentAt.slice(0, 16),
+      });
+
+      try {
+        await createOutreachFollowUpTask(
+          context.supabase,
+          data.id,
+          row.company_name,
+          sentAt,
+          context.userId,
+        );
+      } catch (taskError) {
+        console.error("manual J+3 follow-up task creation failed", data.id, taskError);
+      }
+
+      try {
+        const { notifyOwner } = await import("./prospection-daily.server");
+        await notifyOwner(
+          [{ name: row.company_name, email: row.email, city: row.city }],
+          "manuel",
+        );
+      } catch (alertError) {
+        console.error("owner contacted alert failed", alertError);
+      }
+
+      return { sent: true as const };
+    } catch (error) {
+      await context.supabase
+        .from("prospects")
+        .update({ outreach_send_lock_at: null })
+        .eq("id", data.id)
+        .is("outreach_sent_at", null);
+      throw error;
+    }
   });
 
 
