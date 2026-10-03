@@ -537,6 +537,7 @@ export const importProspects = createServerFn({ method: "POST" })
     const { error } = await context.supabase.from("prospects").insert(
       fresh.map((row) => ({
         source: "import",
+        external_id: `import:${normalize(row.name)}|${normalize(row.city)}`.slice(0, 500),
         status: "a_contacter" as const,
         company_name: row.name.slice(0, 200),
         email: row.email || null,
