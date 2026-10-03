@@ -534,7 +534,7 @@ export const importProspects = createServerFn({ method: "POST" })
       return { created: 0, skipped: uniqueRows.length };
     }
 
-    const { error } = await context.supabase.from("prospects").insert(
+    const { data: inserted, error } = await context.supabase.from("prospects").insert(
       fresh.map((row) => ({
         source: "import",
         external_id: `import:${normalize(row.name)}|${normalize(row.city)}`.slice(0, 500),
@@ -545,10 +545,12 @@ export const importProspects = createServerFn({ method: "POST" })
         city: row.city || null,
         score: scoreProspect({ email: row.email, phone: row.phone }),
       })),
-    );
+      { onConflict: "external_id", ignoreDuplicates: true },
+    ).select("id");
     if (error) throw new Error(error.message);
 
-    return { created: fresh.length, skipped: uniqueRows.length - fresh.length };
+    const created = inserted?.length ?? 0;
+    return { created, skipped: uniqueRows.length - created };
   });
 
 /** Reads the company website and returns every public address found. */
