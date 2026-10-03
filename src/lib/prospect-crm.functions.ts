@@ -13,36 +13,51 @@ const priorityEnum = z.enum(["basse", "normale", "haute", "urgente"]);
 export const listProspectCrm = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const [{ data: prospects, error: prospectsError }, { data: tasks, error: tasksError }, { data: activities, error: activitiesError }] =
-      await Promise.all([
-        context.supabase
-          .from("prospects")
-          .select("id,company_name,city,postal_code,email,phone,score,status,opportunity_type,loss_reason,do_not_contact,do_not_contact_reason,website,outreach_sent_at,created_at,updated_at")
-          .order("score", { ascending: false })
-          .order("created_at", { ascending: false })
-          .limit(400),
-        context.supabase
-          .from("prospect_tasks")
-          .select("id,prospect_id,title,task_type,due_at,priority,completed_at,created_at,updated_at")
-          .order("completed_at", { ascending: true, nullsFirst: true })
-          .order("due_at", { ascending: true, nullsFirst: false })
-          .limit(500),
-        context.supabase
-          .from("prospect_activities")
-          .select("id,prospect_id,activity_type,title,body,occurred_at,created_by,metadata,created_at")
-          .order("occurred_at", { ascending: false })
-          .limit(500),
-      ]);
+    const PAGE_SIZE = 1000;
 
-    if (prospectsError) throw new Error(prospectsError.message);
-    if (tasksError) throw new Error(tasksError.message);
-    if (activitiesError) throw new Error(activitiesError.message);
+    const allProspects: Array<Record<string, unknown>> = [];
+    for (let from = 0; ; from += PAGE_SIZE) {
+      const { data, error } = await context.supabase
+        .from("prospects")
+        .select("id,company_name,city,postal_code,email,phone,score,status,opportunity_type,loss_reason,do_not_contact,do_not_contact_reason,website,outreach_sent_at,created_at,updated_at")
+        .order("score", { ascending: false })
+        .order("created_at", { ascending: false })
+        .range(from, from + PAGE_SIZE - 1);
+      if (error) throw new Error(error.message);
+      allProspects.push(...(data ?? []));
+      if (!data || data.length < PAGE_SIZE) break;
+    }
+
+    const allTasks: Array<Record<string, unknown>> = [];
+    for (let from = 0; ; from += PAGE_SIZE) {
+      const { data, error } = await context.supabase
+        .from("prospect_tasks")
+        .select("id,prospect_id,title,task_type,due_at,priority,completed_at,created_at,updated_at")
+        .order("completed_at", { ascending: true, nullsFirst: true })
+        .order("due_at", { ascending: true, nullsFirst: false })
+        .range(from, from + PAGE_SIZE - 1);
+      if (error) throw new Error(error.message);
+      allTasks.push(...(data ?? []));
+      if (!data || data.length < PAGE_SIZE) break;
+    }
+
+    const allActivities: Array<Record<string, unknown>> = [];
+    for (let from = 0; ; from += PAGE_SIZE) {
+      const { data, error } = await context.supabase
+        .from("prospect_activities")
+        .select("id,prospect_id,activity_type,title,body,occurred_at,created_by,metadata,created_at")
+        .order("occurred_at", { ascending: false })
+        .range(from, from + PAGE_SIZE - 1);
+      if (error) throw new Error(error.message);
+      allActivities.push(...(data ?? []));
+      if (!data || data.length < PAGE_SIZE) break;
+    }
 
     return {
-      prospects: prospects ?? [],
-      tasks: tasks ?? [],
-      activities: activities ?? [],
-      kpis: buildKpis(prospects ?? []),
+      prospects: allProspects,
+      tasks: allTasks,
+      activities: allActivities,
+      kpis: buildKpis(allProspects),
     };
   });
 
