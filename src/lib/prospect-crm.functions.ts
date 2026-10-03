@@ -15,7 +15,7 @@ export const listProspectCrm = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const PAGE_SIZE = 1000;
 
-    const allProspects: Array<Record<string, unknown>> = [];
+    const allProspects = [];
     for (let from = 0; ; from += PAGE_SIZE) {
       const { data, error } = await context.supabase
         .from("prospects")
@@ -28,7 +28,7 @@ export const listProspectCrm = createServerFn({ method: "GET" })
       if (!data || data.length < PAGE_SIZE) break;
     }
 
-    const allTasks: Array<Record<string, unknown>> = [];
+    const allTasks = [];
     for (let from = 0; ; from += PAGE_SIZE) {
       const { data, error } = await context.supabase
         .from("prospect_tasks")
@@ -41,7 +41,7 @@ export const listProspectCrm = createServerFn({ method: "GET" })
       if (!data || data.length < PAGE_SIZE) break;
     }
 
-    const allActivities: Array<Record<string, unknown>> = [];
+    const allActivities = [];
     for (let from = 0; ; from += PAGE_SIZE) {
       const { data, error } = await context.supabase
         .from("prospect_activities")
