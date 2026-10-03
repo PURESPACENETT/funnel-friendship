@@ -84,8 +84,9 @@ export async function geocodeArea(
       },
     });
     if (!response.ok) {
-      console.error(`Geocoding failed [${response.status}]: ${await response.text()}`);
-      return HOME;
+      const detail = await response.text();
+      console.error(`Geocoding failed [${response.status}]: ${detail}`);
+      throw new Error(`Impossible de localiser « ${area} » (${response.status}).`);
     }
     const payload = (await response.json()) as {
       results?: Array<{ geometry?: { location?: { lat?: number; lng?: number } } }>;
@@ -94,10 +95,11 @@ export async function geocodeArea(
     if (typeof point?.lat === "number" && typeof point?.lng === "number") {
       return { latitude: point.lat, longitude: point.lng };
     }
-    return HOME;
+    throw new Error(`Impossible de localiser « ${area} ».`);
   } catch (error) {
     console.error("geocoding error", error);
-    return HOME;
+    if (error instanceof Error && error.message.startsWith("Impossible de localiser")) throw error;
+    throw new Error(`Impossible de localiser « ${area} ».`);
   }
 }
 
@@ -167,7 +169,7 @@ export async function searchLocalBusinesses(
       const lat = p.location?.latitude;
       const lng = p.location?.longitude;
       if (typeof lat !== "number" || typeof lng !== "number") return true;
-      return distanceKm(center, { latitude: lat, longitude: lng }) <= radiusKm * 1.1;
+      return distanceKm(center, { latitude: lat, longitude: lng }) <= radiusKm;
     })
     .slice(0, MAX_RESULTS_PER_SEARCH)
 
