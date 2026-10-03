@@ -91,7 +91,7 @@ export const listTodayProspectTasks = createServerFn({ method: "GET" })
     const endOffset = new Intl.DateTimeFormat("en-US", {
       timeZone: "Europe/Paris",
       timeZoneName: "longOffset",
-      hour: "02:00",
+      hour: "numeric",
     })
       .formatToParts(new Date(nextParisDay.getTime() + 12 * 60 * 60 * 1000))
       .find((part) => part.type === "timeZoneName")?.value
