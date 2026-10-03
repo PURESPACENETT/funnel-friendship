@@ -534,19 +534,22 @@ export const importProspects = createServerFn({ method: "POST" })
       return { created: 0, skipped: uniqueRows.length };
     }
 
-    const { data: inserted, error } = await context.supabase.from("prospects").insert(
-      fresh.map((row) => ({
-        source: "import",
-        external_id: `import:${normalize(row.name)}|${normalize(row.city)}`.slice(0, 500),
-        status: "a_contacter" as const,
-        company_name: row.name.slice(0, 200),
-        email: row.email || null,
-        phone: row.phone || null,
-        city: row.city || null,
-        score: scoreProspect({ email: row.email, phone: row.phone }),
-      })),
-      { onConflict: "external_id", ignoreDuplicates: true },
-    ).select("id");
+    const { data: inserted, error } = await context.supabase
+      .from("prospects")
+      .upsert(
+        fresh.map((row) => ({
+          source: "import",
+          external_id: `import:${normalize(row.name)}|${normalize(row.city)}`.slice(0, 500),
+          status: "a_contacter" as const,
+          company_name: row.name.slice(0, 200),
+          email: row.email || null,
+          phone: row.phone || null,
+          city: row.city || null,
+          score: scoreProspect({ email: row.email, phone: row.phone }),
+        })),
+        { onConflict: "external_id", ignoreDuplicates: true },
+      )
+      .select("id");
     if (error) throw new Error(error.message);
 
     const created = inserted?.length ?? 0;
