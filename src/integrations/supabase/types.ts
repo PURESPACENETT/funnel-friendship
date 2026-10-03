@@ -289,6 +289,7 @@ export type Database = {
           outreach_body?: string | null
           outreach_generated_at?: string | null
           outreach_sent_at?: string | null
+          outreach_send_lock_at?: string | null
           outreach_subject?: string | null
           phone?: string | null
           postal_code?: string | null
@@ -326,6 +327,7 @@ export type Database = {
           outreach_body?: string | null
           outreach_generated_at?: string | null
           outreach_sent_at?: string | null
+          outreach_send_lock_at?: string | null
           outreach_subject?: string | null
           phone?: string | null
           postal_code?: string | null
