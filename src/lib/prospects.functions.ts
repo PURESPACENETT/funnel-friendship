@@ -222,13 +222,19 @@ export const searchProspects = createServerFn({ method: "POST" })
 export const listProspects = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("prospects")
-      .select("*")
-      .order("score", { ascending: false })
-      .order("created_at", { ascending: false })
-      .limit(400);
-    if (error) throw new Error(error.message);
+    const PAGE_SIZE = 1000;
+    const prospects = [];
+    for (let from = 0; ; from += PAGE_SIZE) {
+      const { data, error } = await context.supabase
+        .from("prospects")
+        .select("*")
+        .order("score", { ascending: false })
+        .order("created_at", { ascending: false })
+        .range(from, from + PAGE_SIZE - 1);
+      if (error) throw new Error(error.message);
+      prospects.push(...(data ?? []));
+      if (!data || data.length < PAGE_SIZE) break;
+    }
 
     const { data: searches } = await context.supabase
       .from("prospect_searches")
@@ -236,7 +242,7 @@ export const listProspects = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(5);
 
-    return { prospects: data ?? [], searches: searches ?? [] };
+    return { prospects, searches: searches ?? [] };
   });
 
 export const updateProspectStatus = createServerFn({ method: "POST" })
