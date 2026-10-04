@@ -861,6 +861,7 @@ export type Database = {
           email: string
           estimate_max: number
           estimate_min: number
+          fbclid: string | null
           frequency: string | null
           full_name: string
           gbraid: string | null
@@ -907,6 +908,7 @@ export type Database = {
           email: string
           estimate_max?: number
           estimate_min?: number
+          fbclid?: string | null
           frequency?: string | null
           full_name: string
           gbraid?: string | null
@@ -953,6 +955,7 @@ export type Database = {
           email?: string
           estimate_max?: number
           estimate_min?: number
+          fbclid?: string | null
           frequency?: string | null
           full_name?: string
           gbraid?: string | null
