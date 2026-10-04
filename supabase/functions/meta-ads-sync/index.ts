@@ -15,7 +15,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 async function graph(path: string, params: Record<string, string> = {}) {
   const url = new URL(`https://graph.facebook.com/${GRAPH_VERSION}/${path.replace(/^\//, "")}`);
-  url.searchParams.set("access_token", ACCESS_TOKEN);
+  url.searchParams.set("access_token", ACCESS_TOKEN!);
   for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
   const response = await fetch(url);
   const payload = await response.json();
