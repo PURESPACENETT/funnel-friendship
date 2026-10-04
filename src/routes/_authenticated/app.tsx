@@ -23,7 +23,7 @@ const NAV = [
   { to: "/app/demandes", label: "Demandes", icon: ListChecks, exact: false },
   { to: "/app/pipeline", label: "Pipeline", icon: KanbanSquare, exact: false },
   { to: "/app/aujourdhui", label: "À faire aujourd'hui", icon: CalendarCheck2, exact: false },
-  { to: "/app/prospection", label: "Prospection", icon: Radar, exact: false },
+  { to: "/app/prospection", label: "Prospection", icon: Radar, exact: false },\n  { to: "/app/meta-ads", label: "Meta Ads", icon: Megaphone, exact: false },
   { to: "/app/linkedin", label: "LinkedIn", icon: Linkedin, exact: false },
   { to: "/app/tarifs", label: "Tarifs", icon: SlidersHorizontal, exact: false },
 ] as const;
