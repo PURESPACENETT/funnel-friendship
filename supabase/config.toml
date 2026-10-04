@@ -2,3 +2,9 @@ project_id = "wewihwzeesxhugnupkpm"
 
 [functions.quote-request-webhook]
 verify_jwt = false
+
+[functions.meta-ads-sync]
+verify_jwt = false
+
+[functions.meta-leads-webhook]
+verify_jwt = false

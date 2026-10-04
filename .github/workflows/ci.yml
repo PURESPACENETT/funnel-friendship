@@ -60,3 +60,8 @@ jobs:
 
       - name: Check quote webhook
         run: deno check --config supabase/functions/quote-request-webhook/deno.json supabase/functions/quote-request-webhook/index.ts
+      - name: Check Meta Ads sync
+        run: deno check --config supabase/functions/meta-ads-sync/deno.json supabase/functions/meta-ads-sync/index.ts
+
+      - name: Check Meta Lead Ads webhook
+        run: deno check --config supabase/functions/meta-leads-webhook/deno.json supabase/functions/meta-leads-webhook/index.ts
