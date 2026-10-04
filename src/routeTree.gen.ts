@@ -179,7 +179,6 @@ export interface FileRoutesByFullPath {
   '/app/pipeline': typeof AuthenticatedAppPipelineRoute
   '/app/prospection': typeof AuthenticatedAppProspectionRoute
   '/app/meta-ads': typeof AuthenticatedAppMetaAdsRoute
-  '/app/meta-ads': typeof AuthenticatedAppMetaAdsRoute
   '/app/tarifs': typeof AuthenticatedAppTarifsRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/demandes/$id': typeof AuthenticatedAppDemandesIdRoute
