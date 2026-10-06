@@ -33,4 +33,6 @@ npm run dev
 
 Set `OPENAI_API_KEY` in a local `.env.local` file for direct OpenAI API access. Prospecting email drafts use GPT-6 Luna, and quote qualification uses GPT-6.1 Sol through the Responses API. GPT-6 Astra is reserved for a future complex-analysis workflow and is not currently called by the app.
 
-`LOVABLE_API_KEY` remains necessary for the existing Lovable-managed email, Google Maps, and Clay integrations. It is no longer used for AI model requests.
+The Supabase client uses `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`; server-side admin operations also require `SUPABASE_SERVICE_ROLE_KEY`. The browser build uses the corresponding `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` variables.
+
+`LOVABLE_API_KEY` remains necessary for existing Lovable-managed email, Google Maps, and Clay integrations. It is no longer used for AI model requests. `LOVABLE_SEND_URL` is an optional email endpoint override. The notification recipient is configured in the Supabase pricing settings, not as an environment variable.
