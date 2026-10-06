@@ -1,7 +1,7 @@
-import { createOpenAI } from "@ai-sdk/openai";
 import { Output, streamText } from "ai";
 import { z } from "zod";
 
+import { createAIRouter, logAIUsage } from "./ai-router.server";
 import { labelOf, SECTORS } from "./prospects-shared";
 
 const outreachDraftSchema = z.object({
@@ -136,35 +136,22 @@ export function buildFallbackOutreachEmails(input: OutreachInput): OutreachPropo
 /** AI returns three checked alternatives; any provider/schema/quality failure uses local drafts. */
 export async function draftOutreachEmails(input: OutreachInput): Promise<OutreachProposals> {
   const fallback = buildFallbackOutreachEmails(input);
-  const key = process.env["LOVABLE_API_KEY"];
-  if (!key) {
-    console.warn("LOVABLE_API_KEY missing; using deterministic outreach fallback");
+  const ai = createAIRouter();
+  if (!ai) {
+    console.warn("OPENAI_API_KEY missing; using deterministic outreach fallback");
     return fallback;
   }
 
-  const lovable = createOpenAI({
-    baseURL: "https://ai.gateway.lovable.dev/v1",
-    apiKey: key,
-    headers: { "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-  });
-
   try {
     const result = streamText({
-      model: lovable.responses("openai/gpt-6-astra"),
+      model: ai.modelFor("prospecting"),
       system: SYSTEM,
       prompt: buildPrompt(input),
       output: Output.object({ schema: outreachProposalsSchema }),
-      providerOptions: {
-        openai: {
-          forceReasoning: true,
-          reasoningEffort: "low",
-          reasoningSummary: "auto",
-          store: false,
-          include: ["reasoning.encrypted_content"],
-        },
-      },
+      providerOptions: ai.providerOptionsFor("prospecting"),
     });
     const output = outreachProposalsSchema.parse(await result.output);
+    await logAIUsage("prospecting", result.usage);
     if (!uniqueProposals(output.proposals)) {
       console.warn("AI outreach alternatives were too similar; using deterministic fallback");
       return fallback;
@@ -174,7 +161,7 @@ export async function draftOutreachEmails(input: OutreachInput): Promise<Outreac
       body: finishDraft(draft.body),
     })) as OutreachProposals;
   } catch (error) {
-    console.error("Outreach drafting failed; using deterministic fallback", error);
+    console.error("GPT-6 Luna outreach drafting failed; using deterministic fallback", error);
     return fallback;
   }
 }
@@ -183,4 +170,3 @@ export async function draftOutreachEmails(input: OutreachInput): Promise<Outreac
 export async function draftOutreachEmail(input: OutreachInput): Promise<OutreachDraft> {
   return (await draftOutreachEmails(input))[0];
 }
-

@@ -4,8 +4,6 @@ Que penses-tu du texte suivant, on peut faire un projet pareil nous même ?
 
 "Systèmes automatisés d'acquisition clients — Tunnels de conversion et automatisation sur mesure
 
-
-
 Digital Renforcy conçoit et déploie des systèmes automatisés d'acquisition clients sur-mesure. Tunnels de conversion, landing pages haute performance, formulaires intelligents, chatbots IA et automatisation complète du parcours prospect. Chaque contact est capté, qualifié et transmis automatiquement."
 
 This project was built with [Lovable](https://lovable.dev).
@@ -30,3 +28,9 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Server-side AI
+
+Set `OPENAI_API_KEY` in a local `.env.local` file for direct OpenAI API access. Prospecting email drafts use GPT-6 Luna, and quote qualification uses GPT-6.1 Sol through the Responses API. GPT-6 Astra is reserved for a future complex-analysis workflow and is not currently called by the app.
+
+`LOVABLE_API_KEY` remains necessary for the existing Lovable-managed email, Google Maps, and Clay integrations. It is no longer used for AI model requests.

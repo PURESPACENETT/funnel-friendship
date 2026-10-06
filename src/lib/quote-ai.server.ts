@@ -1,14 +1,14 @@
-import { createOpenAI } from "@ai-sdk/openai";
 import { Output, streamText } from "ai";
 import { z } from "zod";
 
+import { createAIRouter, logAIUsage } from "./ai-router.server";
 import { FREQUENCIES, PROPERTY_TYPES, CLIENT_TYPES, SERVICES, labelOf } from "./quotes-shared";
 
-const qualificationSchema = z.object({
-  summary: z.string(),
-  keyPoints: z.array(z.string()),
+export const qualificationSchema = z.object({
+  summary: z.string().trim().min(1).max(600),
+  keyPoints: z.array(z.string().trim().min(1).max(240)).min(3).max(5),
   urgency: z.enum(["faible", "moyenne", "elevee"]),
-  nextStep: z.string(),
+  nextStep: z.string().trim().min(1).max(300),
 });
 
 export type Qualification = z.infer<typeof qualificationSchema>;
@@ -59,39 +59,27 @@ const SYSTEM = [
 
 /** Generates a qualified summary of a quote request with Lovable AI. */
 export async function qualifyQuoteRequest(input: QualifyInput): Promise<Qualification | null> {
-  const key = process.env["LOVABLE_API_KEY"];
-  if (!key) {
-    console.error("LOVABLE_API_KEY missing, skipping AI qualification");
+  const ai = createAIRouter();
+  if (!ai) {
+    console.error("OPENAI_API_KEY missing, skipping AI qualification");
     return null;
   }
 
-  const lovable = createOpenAI({
-    baseURL: "https://ai.gateway.lovable.dev/v1",
-    apiKey: key,
-    headers: { "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-  });
-
   try {
     const result = streamText({
-      model: lovable.responses("openai/gpt-6-astra"),
+      model: ai.modelFor("quoteQualification"),
       system: SYSTEM,
       prompt: buildPrompt(input),
       output: Output.object({ schema: qualificationSchema }),
-      providerOptions: {
-        openai: {
-          forceReasoning: true,
-          reasoningEffort: "low",
-          reasoningSummary: "auto",
-          store: false,
-          include: ["reasoning.encrypted_content"],
-        },
-      },
+      providerOptions: ai.providerOptionsFor("quoteQualification"),
     });
 
     const output = await result.output;
-    return qualificationSchema.parse(output);
+    const qualification = qualificationSchema.parse(output);
+    await logAIUsage("quoteQualification", result.usage);
+    return qualification;
   } catch (error) {
-    console.error("AI qualification failed", error);
+    console.error("GPT-6.1 Sol quote qualification failed", error);
     return null;
   }
 }
