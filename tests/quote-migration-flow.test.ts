@@ -27,6 +27,19 @@ mock.module("@/integrations/supabase/client.server", () => ({
   },
 }));
 
+mock.module("ai", () => ({
+  Output: { object: ({ schema }: { schema: unknown }) => ({ schema }) },
+  streamText: () => ({
+    output: Promise.resolve({
+      summary: "Bureaux de 180 m² à entretenir chaque semaine.",
+      keyPoints: ["180 m²", "Fréquence hebdomadaire", "Accès après 18 h"],
+      urgency: "moyenne",
+      nextStep: "Confirmer les horaires et organiser une visite.",
+    }),
+    usage: Promise.resolve({ inputTokens: 20, outputTokens: 30, totalTokens: 50 }),
+  }),
+}));
+
 const { notifyNewRequest } = await import("@/lib/quote-notifications.server");
 const { qualifyAndStore } = await import("@/lib/quote-ai.server");
 
@@ -70,35 +83,6 @@ describe("offline quote migration flow", () => {
   test("persists a valid mocked GPT qualification to the Supabase stub", async () => {
     const previousKey = process.env["OPENAI_API_KEY"];
     process.env["OPENAI_API_KEY"] = "test-key";
-    const previousFetch = globalThis.fetch;
-    globalThis.fetch = (async () =>
-      Response.json({
-        id: "resp_test",
-        object: "response",
-        created_at: 1,
-        model: "gpt-6.1-sol",
-        output: [
-          {
-            type: "message",
-            id: "msg_test",
-            role: "assistant",
-            status: "completed",
-            content: [
-              {
-                type: "output_text",
-                text: JSON.stringify({
-                  summary: "Bureaux de 180 m² à entretenir chaque semaine.",
-                  keyPoints: ["180 m²", "Fréquence hebdomadaire", "Accès après 18 h"],
-                  urgency: "moyenne",
-                  nextStep: "Confirmer les horaires et organiser une visite.",
-                }),
-                annotations: [],
-              },
-            ],
-          },
-        ],
-        usage: { input_tokens: 20, output_tokens: 30, total_tokens: 50 },
-      })) as typeof fetch;
     databaseUpdates.length = 0;
 
     try {
@@ -128,7 +112,6 @@ describe("offline quote migration flow", () => {
       });
       expect(databaseUpdates[0]?.values["ai_key_points"]).toHaveLength(3);
     } finally {
-      globalThis.fetch = previousFetch;
       if (previousKey === undefined) delete process.env["OPENAI_API_KEY"];
       else process.env["OPENAI_API_KEY"] = previousKey;
     }
